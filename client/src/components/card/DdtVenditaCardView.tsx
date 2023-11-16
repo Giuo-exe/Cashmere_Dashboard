@@ -27,7 +27,7 @@ const DdtVenditaCardView = ({titolo, data, kg, destinatario, beni, id, idfattura
         try {
             // Esegui la richiesta API per inviare i dati del DDT al database
             // Usa l'oggetto ddt per inviare i dati
-            const response = await fetch("http://localhost:8080/api/v1/fatture/addddt", {
+            const response = await fetch("https://cashmere-dashboard.onrender.com/api/v1/fatture/addddt", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
