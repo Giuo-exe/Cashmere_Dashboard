@@ -12,6 +12,7 @@ const ClienteSchema = new mongoose.Schema({
   cap: { type: Number },
   cf: { type: String },
   contoterzi: { type: Boolean, default: false },
+  dataoffset: {type: Number, default: 30},
   allFatture: [{ type: mongoose.Schema.Types.ObjectId, ref: "Fattura" }],
   allDdt: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ddt" }],
 

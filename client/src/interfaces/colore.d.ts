@@ -7,3 +7,9 @@ export interface ColoreCardProps{
     lotti?: string
     hex: string | undefined
 }
+
+export interface colore{
+    name: String,
+    codice: String,
+    hex: String,
+}

@@ -19,7 +19,7 @@ const FatturaCreate : React.FC<IResourceComponentsProps> = () => {
 
     const allClienti = data?.data ?? [];
 
-    const nomi = allClienti.map((clienti) => clienti.name)
+    const ddts = GetDDTs()
     
     const onFinishHandler =  async (data: FieldValues) => {
         const emissionDate = new Date(data.data);
@@ -42,8 +42,18 @@ const FatturaCreate : React.FC<IResourceComponentsProps> = () => {
                 formLoading={formLoading}
                 handleSubmit={handleSubmit}
                 onFinishHandler={onFinishHandler}
-                clienti={nomi}
+                clienti={allClienti}
+                ddts = {ddts}
             />
         );
 };
+
+
+const GetDDTs = () => {
+    const { data, isLoading, isError } = useList({ resource: "ddt/vendita" });
+    const allDdt = data?.data ?? [];
+
+    return allDdt
+
+}
 export default FatturaCreate;

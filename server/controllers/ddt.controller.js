@@ -191,6 +191,10 @@ const getVenditaddt = async (req,res) => {
             .populate({
                 path: 'beni.lotto',
                 model: 'Lotto', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
+            })
+            .populate({
+                path: 'beni.colore',
+                model: 'Colore', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
             });
 
         res.header("x-total-count", count);

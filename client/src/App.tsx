@@ -78,43 +78,51 @@ axiosInstance.interceptors.request.use((request: AxiosRequestConfig) => {
 function App() {
   const authProvider: AuthBindings = {
     login: async ({ credential }: CredentialResponse) => {
-      const profileObj = credential ? parseJwt(credential) : null;
-      
-      //save to database
-      if(profileObj){
-        const response = await fetch("https://cashmere-dashboard.onrender.com/api/v1/users", {
-          method: "POST",
-          headers: { "Content-Type": 'application/json' },
-          body: JSON.stringify({
-            name: profileObj.name,
-            email: profileObj.email,
-            avatar: profileObj.picture,
-          })
-        })
-
-        const data = await response.json();
+      try {
+        const profileObj = credential ? parseJwt(credential) : null;
         
-        if(response.status === 200){
-          localStorage.setItem(
-            "user",
-            JSON.stringify({
-              ...profileObj,
+        if (profileObj) {
+          const response = await fetch("http://localhost:8080/api/v1/users", {
+            method: "POST",
+            headers: { "Content-Type": 'application/json' },
+            body: JSON.stringify({
+              name: profileObj.name,
+              email: profileObj.email,
               avatar: profileObj.picture,
-              userid: data._id
             })
-          );
+          });
+    
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+    
+          const data = await response.json();
+          
+          if (response.status === 200) {
+            localStorage.setItem(
+              "user",
+              JSON.stringify({
+                ...profileObj,
+                avatar: profileObj.picture,
+                userid: data._id
+              })
+            );
+          }
+          localStorage.setItem("token", `${credential}`);
+    
+          return {
+            success: true,
+            redirectTo: "/",
+          };
         }
-        localStorage.setItem("token", `${credential}`);
-
+    
         return {
-          success: true,
-          redirectTo: "/",
+          success: false,
         };
+      } catch (error) {
+        console.error('Login Error:', error);
+        throw error; // Rilancia l'errore per gestirlo in Refine
       }
-        
-      return {
-        success: false,
-      };
     },
     logout: async () => {
       const token = localStorage.getItem("token");
@@ -176,7 +184,7 @@ function App() {
           <GlobalStyles styles={{ html: { WebkitFontSmoothing: "auto" } }} />
           <RefineSnackbarProvider>
             <Refine
-              dataProvider={dataProvider("https://cashmere-dashboard.onrender.com/api/v1")}
+              dataProvider={dataProvider("http://localhost:8080/api/v1")}
               notificationProvider={notificationProvider}
               routerProvider={routerBindings}
               authProvider={authProvider}

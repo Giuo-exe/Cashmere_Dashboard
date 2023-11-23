@@ -1,4 +1,5 @@
 import { ClienteCardProp } from "./cliente";
+import { colore } from "./colore";
 import { BeneProps } from "./grid";
 
 export interface DdtProps{
@@ -33,3 +34,13 @@ export interface DdtCard{
     beni: Array<BeneProps>
     idfattura?: string | BaseKey
 }
+
+export interface Bene{
+    _id: BaseKey
+    colore: colore,
+    lotto: BaseKey | String | any,
+    kg: Number,
+    n: Number
+}
+
+interface

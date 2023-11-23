@@ -14,8 +14,7 @@ const DdtSchema = new mongoose.Schema({
     destinatario: {type: mongoose.Schema.Types.ObjectId, ref: "Cliente"}, //cliente
     destinazione: {type: String, required: true}, //luogo
     beni: [{
-        colore: {type: String},
-        hex: {type: String},
+        colore:{type: mongoose.Schema.Types.ObjectId, ref: "Colore"},
         lotto: {type: mongoose.Schema.Types.ObjectId, ref: "Lotto"},
         kg: {type: Number},
         n: {type: Number}

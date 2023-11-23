@@ -145,18 +145,6 @@ const LottiForm = ({
                                             gap={3}>
                                             <FormControl fullWidth>
                                                 <TextField
-                                                    label="Balle"
-                                                    fullWidth
-                                                    required
-                                                    id="outlined-basic"
-                                                    color="info"
-                                                    variant="outlined"
-                                                    type="number"
-                                                    {...register("balle", { required: false })}
-                                                />
-                                            </FormControl>
-                                            <FormControl fullWidth>
-                                                <TextField
                                                     fullWidth
                                                     id="date"
                                                     label="Data"
@@ -233,17 +221,17 @@ const LottiForm = ({
                                             </FormControl>
                                             <FormControl fullWidth>
                                                 <TextField
-                                                label={`Balle ${index + 1}`}
-                                                required
-                                                id={`n-${index}`}
-                                                color="info"
-                                                variant="outlined"
-                                                type="number"
-                                                inputProps={{ min: 1 }} // Set minimum value to 1
-                                                defaultValue={1} // Set default value to 1
-                                                {...register(`cashmere[${index}].n`, { required: true })}
-                                                value={item.n}
-                                                onChange={(e) => handleCashmereChange(index, "n", e.target.value)}
+                                                    label={`Balle ${index + 1}`}
+                                                    required
+                                                    id={`n-${index}`}
+                                                    color="info"
+                                                    variant="outlined"
+                                                    type="number"
+                                                    inputProps={{ min: 1 }} // Set minimum value to 1
+                                                    defaultValue={1} // Set default value to 1
+                                                    {...register(`cashmere[${index}].n`, { required: true })}
+                                                    value={item.n}
+                                                    onChange={(e) => handleCashmereChange(index, "n", e.target.value)}
                                                 />
                                             </FormControl>
                                             

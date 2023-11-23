@@ -57,6 +57,7 @@ export interface FormFattureProps {
     handleSubmit: FormEventHandler<HTMLFormElement> | undefined,
     onFinishHandler: (data: FieldValues) => Promise<void> | void,
     clienti: Array | undefined
+    ddts: Arrays | undefined
 }
 
 export interface FormPagamentoProps {

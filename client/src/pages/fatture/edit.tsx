@@ -18,6 +18,7 @@ const FatturaEdit : React.FC<IResourceComponentsProps> = () => {
     const { data, isLoading, isError } = useList({ resource: "clienti" });
 
     const allClienti = data?.data ?? [];
+    const ddts = GetDDTs();
 
     const nomi = allClienti.map((clienti) => clienti.name)
     console.log(nomi);
@@ -34,7 +35,17 @@ const FatturaEdit : React.FC<IResourceComponentsProps> = () => {
                 handleSubmit={handleSubmit}
                 onFinishHandler={onFinishHandler}
                 clienti={nomi}
+                ddts = {ddts}
+
             />
         );
 };
+
+const GetDDTs = () => {
+    const { data, isLoading, isError } = useList({ resource: "ddt/vendita" });
+    const allDdt = data?.data ?? [];
+
+    return allDdt
+
+}
 export default FatturaEdit;
