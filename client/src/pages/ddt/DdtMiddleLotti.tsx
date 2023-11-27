@@ -11,6 +11,7 @@ import { InputText } from 'primereact/inputtext'
 import LottoCardMiddle from "components/card/LottoCardMiddle";
 import { useCart } from "utils/CartContext";
 import React, { useEffect } from 'react';
+import DdtContoTerziCard from "components/card/DdtContoTerziCard";
 
 interface DdtMiddleLottiProps {
     type: string;
@@ -37,6 +38,7 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
     const allLotti = data?.data ?? [];
 
     const LottiStats = GetStats();
+    const Colori = GetColours();
     console.log(LottiStats)
     
     const [id, setId] = useState(0);
@@ -146,14 +148,15 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
                             }
 
                             const commonProps = {
-                            key: lotto._id,
-                            lottoid: lotto._id,
-                            navigazione: `./show/${lotto._id}`,
-                            name: lotto.name,
-                            data: lotto.data,
-                            cashmere: lotto.cashmere,
-                            vendita: vendita,
-                            lavorata: lottoLavorata,
+                                key: lotto._id,
+                                lottoid: lotto._id,
+                                navigazione: `./show/${lotto._id}`,
+                                name: lotto.name,
+                                data: lotto.data,
+                                cashmere: lotto.cashmere,
+                                vendita: vendita,
+                                lavorata: lottoLavorata,
+                                colori: Colori
                             };
 
                             if (statistica && vendita) {
@@ -166,10 +169,11 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
                             );
                             } else if (statistica && !vendita) {
                             return (
-                                <LottoCardMiddle
+                                <DdtContoTerziCard
                                 {...commonProps}
                                 contoterzi={true}
                                 stats={statistica}
+
                                 />
                             );
                             } else {
@@ -233,6 +237,14 @@ const GetStats = () => {
     const allLotti = data?.data ?? [];
     
     return allLotti;
+}
+
+const GetColours = () => {
+    const { data, isLoading, isError } = useList({ resource: `colori` });
+
+    const allColori = data?.data ?? [];
+    
+    return allColori;
 }
 
 

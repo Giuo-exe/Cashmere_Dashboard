@@ -1,8 +1,10 @@
 
+import { ColoreCardProps } from "./colore"
 import { BeneProps, FatturaGridProps } from "./grid"
 
 export interface lottoCardProps{
     _id?: string | BaseKey
+    colori?: any
     navigazione: string
     name: string | BaseKey | "" ,
     data: string | Date,
