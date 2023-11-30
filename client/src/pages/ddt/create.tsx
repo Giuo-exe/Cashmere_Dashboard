@@ -377,7 +377,7 @@ const getCartRows = (cart: any) => {
     const rows: BeniGridProps[] = []; // Initialize an empty array to hold the transformed data
 
         cart.forEach((index: BeneProps) => {
-            const bene = index.lottoname + "- Maglieria di cashmere " + index.colore
+            const bene = index.lottoname + " - Cashmere " + index.colorename
 
             rows.push({
                 bene: bene,

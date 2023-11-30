@@ -6,7 +6,8 @@ interface CartItem {
   idcart: number; 
   lottoname: string;
   lotto: string;
-  colore: string;
+  colorename?: string;
+  colore?: string;
   hex: string | undefined;
   kg: number;
   n: number;

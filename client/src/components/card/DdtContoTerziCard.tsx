@@ -9,11 +9,18 @@ import { useCart } from '../../utils/CartContext';
 import { getId } from 'pages/ddt/idgenerator';
 
 interface CashmereItem {
-  colore: string;
+  colorename: string;
   hex?: string;
   lotto?: string;
   kg: number;
   n?: number;
+}
+
+interface ColoreProps {
+  _id: string 
+  name: string,
+  codice: string,
+  hex: string ;
 }
 
 const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata, stats, contoterzi, venditacheck, colori ,vendita, ids} : lottoCardProps) => {
@@ -30,13 +37,14 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
       console.log(cashmere)
     }
 
-    const {addToCart, removeFromCart,cart} = useCart();
+
+    const {addToCart, removeFromCart, cart} = useCart();
 
     const [inputValues, setInputValues] =  useState(cashmere.map(() => ''));
     const [remainingQuantities, setRemainingQuantities] =  useState(cashmere.map((cash) => cash.kg)); // Stato per la quantità rimasta
     const [balleInputValues, setBalleInputValues] = useState(cashmere.map(() => ''));
     const [remainingBalle, setRemainingBalle] = useState(cashmere.map((cash) => cash.n));
-    const [selectedColor, setSelectedColor] = useState(null);
+    const [selectedColor, setSelectedColor] = useState<ColoreProps>();
 
     const handleColorChange = (event : any, value : any) => {
         setSelectedColor(value);
@@ -61,48 +69,24 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
       const balleValue = parseInt(balleInputValues[index]);
     
       // Check for valid 'balle' input
-      if ((!isNaN(balleValue) && balleValue >= 1 && balleValue <= remainingBalle[index]) &&
-          (!isNaN(inputValue) && inputValue >= 1 && inputValue <= remainingQuantities[index])) {
+      if (!isNaN(inputValue) && inputValue >= 1 && inputValue <= remainingQuantities[index]) {
         let finalKgToAdd = inputValue;
-    
-        // If 'balle' equals 'n', add all remaining kilograms
-        if (balleValue === remainingBalle[index]) {
-          finalKgToAdd = remainingQuantities[index];
-        } else if (isNaN(inputValue) || inputValue <= 0 || inputValue > remainingQuantities[index]) {
-          console.error('Invalid kg input');
-          return;
-        }
-    
-        // Update or add the item in the cart
-        const existingCartItemIndex = cart.findIndex((item) => 
-          item.lotto === lottoid && item.colore === cashmere[index].colore
-        );
-    
-        if (existingCartItemIndex !== -1) {
-          // Existing item found in cart, remove it and add an updated version
-          const existingCartItem = cart[existingCartItemIndex];
-          removeFromCart(existingCartItem);
-    
-          const updatedItem = {
-            ...existingCartItem,
-            kg: existingCartItem.kg + finalKgToAdd,
-            n: existingCartItem.n + balleValue
-          };
-          addToCart(updatedItem);
-        } else {
-          // No existing item found, add as a new item
-          const uniqueId = getId();
-          const itemToAddToCart = {
-            idcart: uniqueId,
-            lottoname: name,
-            lotto: lottoid,
-            colore: cashmere[index].colore,
-            hex: cashmere[index].hex,
-            kg: finalKgToAdd,
-            n: balleValue
-          };
-          addToCart(itemToAddToCart);
-        }
+        const colorid = selectedColor?._id || ""
+        const colore = selectedColor?.name || ""
+        const hex = selectedColor?.hex || ""
+ 
+        const uniqueId = getId();
+        const itemToAddToCart = {
+          idcart: uniqueId,
+          lottoname: (name as string),
+          lotto: (lottoid as string),
+          colore: colorid,
+          colorename: colore,
+          hex,
+          kg: finalKgToAdd,
+          n: balleValue
+        };
+        addToCart(itemToAddToCart);
     
         // Update remaining quantity and reset input fields
         setRemainingQuantities(prevQuantities => {
@@ -116,13 +100,6 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
           newInputValues[index] = '';
           return newInputValues;
         });
-        setBalleInputValues(prevBalleValues => {
-          const newBalleValues = [...prevBalleValues];
-          newBalleValues[index] = '';
-          return newBalleValues;
-        });
-      } else {
-        console.error('Invalid balle input');
       }
     };
     
@@ -131,29 +108,28 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
     useEffect(() => {
       // Crea una copia delle quantità originali
       const remainingQuantitiesCopy = [...cashmere.map((cash) => cash.kg)];
-      const remainingBalleCopy = [...cashmere.map((cash) => cash.n)];
+      // const remainingBalleCopy = [...cashmere.map((cash) => cash.n)];
 
       cart.forEach((item) => {
         if (item.lotto === lottoid) {
-          const cashIndex = cashmere.findIndex((cash) => cash.colore === item.colore);
-          if (cashIndex !== -1) {
-            remainingQuantitiesCopy[cashIndex] -= item.kg;
-            if (remainingBalleCopy[cashIndex] != null) { // Additional check if 'n' is optional
-              remainingBalleCopy[cashIndex] -= item.n;
-            }
-          }
+            remainingQuantitiesCopy[0] -= item.kg;
+            // if (remainingBalleCopy[cashIndex] != null) { // Additional check if 'n' is optional
+            //   remainingBalleCopy[cashIndex] -= item.n;
+            // }
         }
       });
 
       setRemainingQuantities(remainingQuantitiesCopy);
-      setRemainingBalle(remainingBalleCopy);
+      // setRemainingBalle(remainingBalleCopy);
       console.log(remainingBalle)
     }, [cart, cashmere, lottoid]); // Aggiungi lottoid come dipendenza
       
+    console.log(colori)
 
-    // useEffect(() => {
-    //     console.log('Contenuto del carrello:', cart);
-    //   }, [cart]);
+
+    useEffect(() => {
+        console.log('Contenuto del carrello:', cart);
+      }, [cart]);
 
 
 
@@ -199,72 +175,72 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
                               </Grid>
                           
                           </Grid>
-                      
-                          
-                          <Grid container alignItems="center" justifyContent="flex-end" spacing={1}> {/* Contenitore della griglia per allineamento */}
-                              <Grid item>
-                                  <TextField
-                                      sx={{width:"100px"}}
-                                      id={`kg-${index}`}
-                                      inputProps={{
-                                          min: 0,
-                                          max: remainingQuantities[index],
-                                          type: "number"
-                                      }}
-                                      label="Kg"
-                                      variant="standard"
-                                      value={inputValues[index]} // Usa il valore corrispondente nell'array
-                                      onChange={(event) => handleInputChange(event, index)} // Passa l'indice
-                                  />
-                              </Grid>
-                              <Grid item>
-                                <TextField
-                                    sx={{ width: "60px" }}
-                                    id={`balle-${index}`}
-                                    inputProps={{ min: 1, type: "number", max: remainingBalle[index]}}
-                                    label="Balle"
-                                    variant="standard"
-                                    value={balleInputValues[index]}
-                                    onChange={(event) => handleBalleInputChange(event, index)}
-                                  />
-                              </Grid>
-                              <Grid item>
-                                  <IconButton color="primary" onClick={() => handleAddToCart(index)}>
-                                  <AddIcon />
-                                  </IconButton>
-                              </Grid>
-                          </Grid>
                   </Stack>
 
                   
                   
               )})}
 
-                <Autocomplete
-                    options={colori}
-                    getOptionLabel={(option) => `${option.name} (${option.codice})`}
-                    onChange={handleColorChange}
-                    renderOption={(props, option) => (
-                        <li {...props}>
-                            <Card
-                                sx={{
-                                    backgroundColor: option.hex,
-                                    maxHeight: "20px",
-                                    maxWidth: "20px",
-                                    minHeight: "20px",
-                                    minWidth: "20px",
-                                    marginRight: "10px"
-                                }}
-                            />
-                            <span style={{ color: 'black' }}>{option.name} </span>
-                            <span style={{ color: 'darkgray' }}> {`   ${option.codice}`}</span>
-                        </li>
-                    )}
-                    renderInput={(params) => (
-                        <TextField {...params} label="Select Color" variant="standard" />
-                    )}
-                    style={{ width: 200 }}
-                />
+              <Grid container alignItems="center" justifyContent="flex-end" spacing={1}> {/* Contenitore della griglia per allineamento */}
+                <Grid item>
+                  <Autocomplete
+                        options={colori}
+                        getOptionLabel={(option) => `${option.name} ${option.codice}`}
+                        onChange={handleColorChange}
+                        renderOption={(props, option) => (
+                            <li {...props}>
+                                <Card
+                                    sx={{
+                                        backgroundColor: option.hex,
+                                        maxHeight: "20px",
+                                        maxWidth: "20px",
+                                        minHeight: "20px",
+                                        minWidth: "20px",
+                                        marginRight: "10px"
+                                    }}
+                                />
+                                <span style={{ color: 'black' }}>{`${option.name} `} </span>
+                                <span style={{ color: 'darkgray' }}> {`   ${option.codice}`}</span>
+                            </li>
+                        )}
+                        renderInput={(params) => (
+                            <TextField {...params} label="Select Color" variant="standard" />
+                        )}
+                        style={{ width: 200 }}
+                  />
+                </Grid>
+                <Grid item>
+                    <TextField
+                        sx={{width:"100px"}}
+                        id={`kg-${0}`}
+                        inputProps={{
+                            min: 0,
+                            max: remainingQuantities[0],
+                            type: "number"
+                        }}
+                        label="Kg"
+                        variant="standard"
+                        value={inputValues[0]} // Usa il valore corrispondente nell'array
+                        onChange={(event) => handleInputChange(event, 0)} // Passa l'indice
+                    />
+                </Grid>
+                <Grid item>
+                  <TextField
+                      sx={{ width: "60px" }}
+                      id={`balle-${0}`}
+                      inputProps={{ min: 1, type: "number", max: remainingBalle[0]}}
+                      label="Balle"
+                      variant="standard"
+                      value={balleInputValues[0]}
+                      onChange={(event) => handleBalleInputChange(event, 0)}
+                    />
+                </Grid>
+                <Grid item>
+                    <IconButton color="primary" onClick={() => handleAddToCart(0)}>
+                      <AddIcon />
+                    </IconButton>
+                </Grid>
+            </Grid>
 
               </Box>
           </CardContent>

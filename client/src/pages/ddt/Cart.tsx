@@ -83,7 +83,7 @@ const Cart = (type: any) => {
                         primary={
                             <Stack direction="row" alignItems="center" spacing={1}>
                                 <Typography variant='body2' fontWeight="bold">
-                                    {`${item.lottoname} - ${item.colore} ${item.kg} kg Balle ${item.n}`}
+                                    {`${item.lottoname} - ${item.colorename} ${item.kg} kg Balle ${item.n}`}
                                 </Typography>
                                 <Card sx={{ height: "20px", width: "20px", backgroundColor: `${item.hex}` }} />
                             </Stack>

@@ -80,7 +80,17 @@ const getFattureDetail = async (req,res) => {
     })
     .populate({
         path: 'allDdt',
-        model: 'Ddt', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
+        model: 'Ddt', // Assuming 'Ddt' is your model name
+        populate: [
+            {
+                path: 'beni.colore',
+                model: 'Colore' // Assuming 'Colore' is your model name
+            },
+            {
+                path: 'beni.lotto',
+                model: 'Lotto' // Assuming 'Lotto' is your model name
+            }
+        ]
     });
 
     if(FatturaExist) { 
@@ -89,36 +99,56 @@ const getFattureDetail = async (req,res) => {
         res.status(404).json({ message : "Fattura non trovata" })
     }
 };
-const createFattura = async (req,res) => {
-    try{
-        const {id,data,scadenza,cliente,note,totale} = req.body;
+const createFattura = async (req, res) => {
+    let session;
+    try {
+        const { id, data, scadenza, cliente, note, totale, allDdt, idKg } = req.body;
 
-        const session = await mongoose.startSession();
+        session = await mongoose.startSession();
         session.startTransaction();
 
-
         const ClienteTrovato = await Cliente.findOne({ name: cliente }).session(session);
-        console.log(ClienteTrovato)
-
         if (!ClienteTrovato) throw new Error("Cliente non trovato");
 
-        const newFattura= await Fattura.create({
+        const newFatturaArray = await Fattura.create([{
+            allDdt,
             id,
             data,
             scadenza,
             cliente: ClienteTrovato._id,
             note,
+            idKg,
             totale
-        });
+        }], { session });
+
+        const newFattura = newFatturaArray[0]; // Access the first element of the array
+
+        if (!newFattura) throw new Error("Errore nella creazione della fattura");
 
         ClienteTrovato.allFatture.push(newFattura._id);
         await ClienteTrovato.save({ session });
 
-        await session.commitTransaction();
+        // Aggiornare i DDT
+        for (const ddtId of allDdt) {
+            const ddtToUpdate = await Ddt.findOne({ _id: ddtId }).session(session);
+            if (!ddtToUpdate) {
+                throw new Error("DDT non trovato");
+            }
+            ddtToUpdate.fattura = newFattura._id;
 
-        res.status(200).json({ message: "Fattura creata con successo" });
+            console.log(newFattura._id)
+
+            await ddtToUpdate.save({ session });
+        }
+
+        await session.commitTransaction();
+        res.status(200).json({ message: "Fattura creata con successo", fatturaId: newFattura._id });
     } catch (error) {
+        await session.abortTransaction();
+        console.error('Errore nella creazione della fattura:', error);
         res.status(500).json({ message: error.message }); 
+    } finally {
+        session.endSession();
     }
 };
 

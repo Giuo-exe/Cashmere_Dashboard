@@ -226,9 +226,9 @@ function getRows (beni: any)  {
     if (Array.isArray(beni)) {
         beni.forEach((index) => {
 
-        const hex = index.hex != null ? index.hex : ""
+        const hex = index.colore.hex != null ? index.colore.hex : ""
         const name = index.lotto.name
-        const bene = name + " - Maglieria di cashmere " + index.colore;
+        const bene = name + "/"+ index?.colore?.codice + " - Maglieria di cashmere " + index.colore.name;
       
           rows.push({
             bene: bene,
@@ -241,7 +241,7 @@ function getRows (beni: any)  {
     // Se 'beni' non è un array, puoi comunque aggiungere un oggetto 'row' con valori vuoti o predefiniti
         const name = beni.lotto.name
         const hex = beni.hex != null ? beni.hex : ""
-        const bene = name + " - Maglieria di cashmere " + beni.colore;
+        const bene = name + "/"+ beni?.colore?.codice + " - Maglieria di cashmere " + beni.colore;
 
         //(beni.lotto.name as string) + "- Maglieria di cashmere " + beni.colore;
         rows.push({

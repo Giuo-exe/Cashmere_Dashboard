@@ -55,6 +55,7 @@ export interface FormFattureProps {
     onFinish: (values: FieldValues) => Promise<void | CreateResponse<BaseRecord> | UpdateResponse<BaseRecord>>,
     formLoading: boolean,
     handleSubmit: FormEventHandler<HTMLFormElement> | undefined,
+    setValue?: any
     onFinishHandler: (data: FieldValues) => Promise<void> | void,
     clienti: Array | undefined
     ddts: Arrays | undefined

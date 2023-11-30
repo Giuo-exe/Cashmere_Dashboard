@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const ContoterziSchema = new mongoose.Schema({
     beni: [{
-        colore: {type: String},
+        colore:{type: mongoose.Schema.Types.ObjectId, ref: "Colore"},
         hex: {type: String},
         lotto: {type: mongoose.Schema.Types.ObjectId, ref: "Lotto"},
         kg: {type: Number},
@@ -10,7 +10,7 @@ const ContoterziSchema = new mongoose.Schema({
     }],
     lavorata: {type: 
         [{
-            colore: {type: String},
+            colore:{type: mongoose.Schema.Types.ObjectId, ref: "Colore"},
             hex: {type: String},
             lotto: {type: mongoose.Schema.Types.ObjectId, ref: "Lotto"},
             kg: {type: Number},

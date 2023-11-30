@@ -186,7 +186,7 @@ const LottiForm = ({
 
                                             <FormControl fullWidth>
                                                 <TextField
-                                                    label={`Kg ${index + 1}`}
+                                                    label={`Kg`}
                                                     required
                                                     id={`kg-${index}`}
                                                     color="info"
@@ -199,7 +199,7 @@ const LottiForm = ({
                                                     }
                                                 />
                                             </FormControl>
-                                            <FormControl fullWidth>
+                                            {/* <FormControl fullWidth>
                                                 <Autocomplete 
                                                     id={`autocomplete-${index}`}
                                                     options={listaColori} // Aggiungi le opzioni dell'Autocomplete
@@ -218,10 +218,10 @@ const LottiForm = ({
                                                         />
                                                     )}
                                                 />
-                                            </FormControl>
+                                            </FormControl> */}
                                             <FormControl fullWidth>
                                                 <TextField
-                                                    label={`Balle ${index + 1}`}
+                                                    label={`Balle`}
                                                     required
                                                     id={`n-${index}`}
                                                     color="info"
@@ -241,12 +241,12 @@ const LottiForm = ({
                                 ))}
                                 
 
-                                <Button 
+                                {/* <Button 
                                     sx={{float: "left"}}
                                     color="primary"
                                     onClick={handleAddField}>
                                         + Aggiungi
-                                </Button>
+                                </Button> */}
 
                                 <Box sx={{float: "right"}}>
                                     <CustomButton

@@ -70,6 +70,7 @@ export interface PagamentiProps{
 export interface BeneProps {
     id?: String | undefined | Number,
     colore?: string,
+    colorename?: string,
     datauscita?: Date,
     scarto?: number
     lotto?: string | LottoUtils

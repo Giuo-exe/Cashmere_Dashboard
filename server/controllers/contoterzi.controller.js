@@ -21,7 +21,7 @@ const getAllContoTerzi = async (req,res) => {
     try {
         const count = await ContoTerzi.countDocuments({ query });
         const contoterzi = await ContoTerzi.find(query)
-            .limit(_end)
+            .limit()
             .skip(_start)
             .sort({ [_sort]: _order })
             .populate({
@@ -31,6 +31,10 @@ const getAllContoTerzi = async (req,res) => {
             .populate({
               path: 'ddt',
               model: 'Ddt', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
+            })
+            .populate({
+              path: "beni.colore",
+              model: "Colore"
             });
 
         res.header("x-total-count", count);
@@ -167,6 +171,10 @@ const getContoTerziDetail = async (req,res) => {
     .populate({
       path: 'beni.lotto',
       model: 'Lotto', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
+    })
+    .populate({
+      path: 'colore',
+      model: 'Colore', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
     })
     .populate({
       path: 'lavorata.lotto',

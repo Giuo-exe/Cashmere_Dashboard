@@ -19,6 +19,8 @@ const createDdt = async (req,res) => {
         return res.status(500).json(DdtExist);
         } 
 
+        
+
         const newDdt = await Ddt.create(
         [{
             beni,
@@ -102,11 +104,10 @@ const getAllddt = async (req,res) => {
             model: 'Cliente', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
           })
         .populate({
-        path: 'fattura',
-        model: 'Fattura', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
+            path: 'fattura',
+            model: 'Fattura', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
         })
 
-        
         res.status(200).json(ddt);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -216,6 +217,10 @@ const getDdtDetail = async (req,res) => {
     .populate({
         path: 'beni.lotto',
         model: 'Lotto', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
+    })
+    .populate({
+        path: 'beni.colore',
+        model: 'Colore', // Make sure 'Pagamento' matches your actual Mongoose model name for payments
     });
 
 

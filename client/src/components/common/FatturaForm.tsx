@@ -65,16 +65,17 @@ const FatturaForm = ({
   onFinishHandler,
   formLoading,
   clienti,
-  ddts
+  ddts,
+  setValue
 }: FormFattureProps) => {
 
 const [modalOpen, setModalOpen] = useState(false);
 
-const [dataScadenza, setDataScadenza] = useState("");
+const [dataScadenza, setDataScadenza] = useState(new Date());
 
 const [selectedItems, setSelectedItems] = useState(new Set());
 
-const [dataEmissione, setDataEmissione] = useState("");
+const [dataEmissione, setDataEmissione] = useState(new Date());
 
 const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
 
@@ -85,12 +86,7 @@ const [prezziPerKg, setPrezziPerKg] = useState<{ [key: string]: number }>({});
 const [prezzoTotaleComplessivo, setPrezzoTotaleComplessivo] = useState(0);
 
 
-console.log(clienti)
-
-
 const nomi = clienti.map((cliente : any) => cliente.name)
-
-
 
     const calcolaDataScadenza = (dataEmissione : any, giorniOffset : number) => {
         const data = new Date(dataEmissione);
@@ -117,21 +113,27 @@ const nomi = clienti.map((cliente : any) => cliente.name)
       console.log(clienteSelezionato, dataEmissione)
       setSelectedCliente(clienteSelezionato);
       //console.log("arrivato", dataEmissione , clienteSelezionato)
-      console.log(dataEmissione)
 
-      if (dataEmissione != "" && clienteSelezionato) {
+      if (dataEmissione && !isNaN(dataEmissione.getTime()) && clienteSelezionato) {
           
-          const nuovaDataScadenza = calcolaDataScadenza(dataEmissione, clienteSelezionato.dataoffset);
+          const nuovaDataScadenza = calculateDateOffset(dataEmissione, clienteSelezionato.dataoffset);
           console.log("arrivato 2")
 
           setDataScadenza(nuovaDataScadenza);
       }
     };
 
-    const handleDataEmissione = (e : any) => {
-        //console.log("New Data Emissione:", e.target.value); // Debugging log
-        setDataEmissione(e.target.value);
+    const handleDataEmissione = (event : any) => {
+      console.log("New Data Emissione:", event.target.value);
+      setDataEmissione(new Date(event.target.value));
+  };
+
+    const calculateDateOffset = (startDate : Date, days : number) => {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + days);
+      return date;
     };
+
 
     const isChecked = (id : any) => selectedItems.has(id);
 
@@ -181,7 +183,24 @@ const nomi = clienti.map((cliente : any) => cliente.name)
     aggiornaPrezzoTotaleComplessivo();
   }, [prezziPerKg, selectedItems]);
 
-  console.log(beniSelezionati)
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevenire il comportamento di submit predefinito
+
+    setValue('totale', prezzoTotaleComplessivo.toFixed(2));
+    setValue('scadenza', dataScadenza.toISOString().substr(0, 10));
+
+    const idDdtSelezionati = ddts
+      .filter((ddt : any) => selectedItems.has(ddt.id))
+      .map((ddt : any) => ddt._id);
+
+    setValue('allDdt', idDdtSelezionati);
+
+    const coppieChiaveValore = Object.entries(prezziPerKg).map(([id, kg]) => ({ id, kg }));
+
+    setValue("idKg", coppieChiaveValore)
+
+    handleSubmit(onFinishHandler)(); // Chiamare handleSubmit passando la funzione onSubmit
+  };
 
   return (
     <>
@@ -198,7 +217,7 @@ const nomi = clienti.map((cliente : any) => cliente.name)
                 gap: "20px",
                 padding: "20px",
               }}
-              onSubmit={handleSubmit(onFinishHandler)}
+              onSubmit={handleFormSubmit}
             >
               <Stack direction="row" alignItems="center" gap={4}>
                 <FormControl fullWidth>
@@ -216,6 +235,7 @@ const nomi = clienti.map((cliente : any) => cliente.name)
                         label="Data Emissione"
                         type="date"
                         InputLabelProps={{ shrink: true }}
+                        value = {dataEmissione ? dataEmissione.toISOString().substr(0, 10) : ''}
                         onChange={handleDataEmissione}
                         {...register("data", { required: true })}
                     />
@@ -226,7 +246,7 @@ const nomi = clienti.map((cliente : any) => cliente.name)
                     label="Data Scadenza"
                     type="date"
                     InputLabelProps={{ shrink: true }}
-                    value={dataScadenza}
+                    value={dataScadenza ? dataScadenza.toISOString().substr(0, 10) : ''}
                     {...register("scadenza", { required: false })}
                   />
                 </FormControl>
@@ -279,7 +299,7 @@ const nomi = clienti.map((cliente : any) => cliente.name)
                 />
               </Stack>
 
-              <Box mt={2} display="flex" justifyContent="flex-end">
+              <Box mt={2} display="flex" justifyContent="space-between">
 
                 {selectedCliente &&(
                   <CustomButton
@@ -314,7 +334,15 @@ const nomi = clienti.map((cliente : any) => cliente.name)
               <TableBody>
                 {beniSelezionati.map((bene : any , index : number) => (
                   <TableRow key={index}>
-                    <TableCell>{bene.colore?.name}</TableCell>
+                    <TableCell>
+                      <Stack direction="row" gap={1}>
+                        <Card color={`#${bene.colore?.hex}`} 
+                        sx={{height:"20px", 
+                            width:"20px", 
+                            backgroundColor:`${bene.colore?.hex}`}}/>
+                        {bene.colore?.name}  
+                      </Stack>
+                    </TableCell>
                     <TableCell>{bene.lotto?.name}/{bene.colore?.codice}</TableCell>
                     <TableCell>{bene.kg}</TableCell>
                     <TableCell>

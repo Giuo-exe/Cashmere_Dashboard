@@ -13,7 +13,12 @@ const FatturaSchema = new mongoose.Schema({
     allPagamenti: [{ type: mongoose.Schema.Types.ObjectId, ref: "Pagamento"}],
     allDdt: [{ type: mongoose.Schema.Types.ObjectId, ref: "Dtt"}],
     lotto: { type: mongoose.Schema.Types.ObjectId, ref: "Lotto"},
-    pagato: {type: Boolean, default: false}
+    idKg : {type : [
+        {
+            id: {type: String},
+            kg: {type: Number}
+        }
+    ], default: []}
     //incassato
     //saldo = totale-incassato
 });

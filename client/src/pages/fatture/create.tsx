@@ -13,6 +13,7 @@ const FatturaCreate : React.FC<IResourceComponentsProps> = () => {
         refineCore: { onFinish, formLoading },
         register,
         handleSubmit,
+        setValue
     } = useForm();
 
     const { data, isLoading, isError } = useList({ resource: "clienti" });
@@ -32,6 +33,7 @@ const FatturaCreate : React.FC<IResourceComponentsProps> = () => {
             return; // Interrompi l'esecuzione ulteriore della funzione
         }
         await onFinish({...data});
+        console.log(data)
     };
 
     return (
@@ -44,6 +46,7 @@ const FatturaCreate : React.FC<IResourceComponentsProps> = () => {
                 onFinishHandler={onFinishHandler}
                 clienti={allClienti}
                 ddts = {ddts}
+                setValue = {setValue}
             />
         );
 };
