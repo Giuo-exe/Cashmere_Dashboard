@@ -117,13 +117,13 @@ const FatturaShow : React.FC<IResourceComponentsProps> = () => {
 
   return (
     <>
-      <Box p={2} component={Card} variant="outlined">
+      <Box p={2} component={Card} variant="outlined" width="70vw" alignSelf="center" alignContent="center">
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant = "h3"> FIBRE PREGIATE SRL</Typography>
             <Typography variant = "h2" color="grey"> FATTURA {`${Fattura.id}`} </Typography>
           </Box>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={12} md={12} lg={9} xl={9}>
+            <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
                <Box>
                   <Typography variant = "body1"> Partita IVA 02508550973</Typography>
                   <Typography variant = "body2"> Via Sabin 11/3</Typography>
@@ -132,7 +132,7 @@ const FatturaShow : React.FC<IResourceComponentsProps> = () => {
                </Box>
             </Grid>
 
-            <Grid item xs={12} sm={12} md={12} lg={3} xl={3}>
+            <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
               <Card variant="outlined" square>
                 <Box sx={{padding: "10px"}}>
                   <ClienteShowCard
@@ -149,7 +149,7 @@ const FatturaShow : React.FC<IResourceComponentsProps> = () => {
                 </Box>
               </Card>
             </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={9} xl={9}>
+            <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
             <Box sx={{padding: "10px"}}>
                 <Typography>OGGETTO: RIF. NS. </Typography>
                   {Fattura?.allDdt?.length > 0 ? (
@@ -163,7 +163,7 @@ const FatturaShow : React.FC<IResourceComponentsProps> = () => {
                 </Box>
             </Grid>
 
-            <Grid item xs={12} sm={12} md={12} lg={3} xl={3}>
+            <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
               <Card variant="outlined" square>
                 <Stack>
                   <Typography>DATA: {dataFattura}</Typography>
@@ -205,7 +205,7 @@ const FatturaShow : React.FC<IResourceComponentsProps> = () => {
               )}
 
           <Grid container spacing={2} sx={{margin: "10"}}>
-            <Grid item xs={12} sm={12} md={12} lg={6} xl={6}>
+            <Grid item xs={12} sm={12} md={12} lg={8} xl={8}>
               <Infobox
                 title="Pagamenti"
                 list={Fattura.allPagamenti}
@@ -214,7 +214,7 @@ const FatturaShow : React.FC<IResourceComponentsProps> = () => {
                 rimanente={((Fattura.totale as number) - (incassato as number))}
               />
             </Grid>
-            <Grid item xs={12} sm={12} md={12} lg={6} xl={6}> 
+            <Grid item xs={12} sm={12} md={12} lg={4} xl={4}> 
               <Infobox
                 title="DDT"
                 fatturaid={Fattura._id}
