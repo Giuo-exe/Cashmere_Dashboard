@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Box, Card, CardContent, Typography, Table, TableHead, TableBody, TableRow, TableCell, Select, 
-    CardHeader,MenuItem, IconButton, Checkbox, Stack, Button, Modal, Divider, TextField, ListItem, ListItemIcon, ListItemText, List } from "@mui/material";
+    CardHeader,MenuItem, IconButton, Checkbox, Stack, Button, Modal, Divider, TextField, ListItem, ListItemIcon, ListItemText, List ,Grid ,Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTable, useList } from "@refinedev/core";
 import CustomButton from "components/common/CustomBotton";
@@ -13,9 +13,28 @@ interface BeneWithKg {
     _id: string;
     kg: number;
     colore?: { hex: string; name: string; _id: string, codice: string };
-    lotto?: { name: string; codice: string };
-    isAllSelected: boolean
+    lotto?: { name: string; codice: string, _id : string };
+    contoterzi?: string
+    n?: number
     // Aggiungi altre proprietà necessarie qui
+}
+
+interface LavorataItem {
+    colore: string;
+    hex: string;
+    kg: number;
+    // Aggiungi qui altri campi se necessario
+}
+
+interface NewItemType {
+    colore: any;
+    hex: string;
+    kg: number;
+    lotto?: any;
+    n?: number;
+    beneId?: string; // Opzionale se usi la stessa interfaccia per il merge
+    contoterzi?: string[]; // Opzionale per il merge
+    beneIds?: string[]; // Opzionale per il merge
 }
 
 // Definire il tipo per lo stato
@@ -26,11 +45,12 @@ const modalStyle = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 800,
+  width: 1200,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
-  maxHeight: 800,
+  maxHeight: 1200,
+  height: 1000,
   overflowY: "auto",
   pt: 2,
   px: 4,
@@ -63,23 +83,14 @@ const ContoTerziList = () => {
     const [selectedForMerge, setSelectedForMerge] = useState<string[]>([]);
     const [selectedColorId, setSelectedColorId] = useState<string | null>(null);
     const [selectedForAdditionalProcessing, setSelectedForAdditionalProcessing] = useState<AdditionalProcessingState>({});
+    const [allSelectedStates, setAllSelectedStates] = useState<{ [key: string]: boolean }>({});
+    const [lavorata, setLavorata] = useState<LavorataItem[]>([]);
 
-
-
+    // Funzioni per il form
 
     const toggleSort = (field : any) => {
         setSorters([{ field, order: currentData === 'asc' ? 'desc' : 'asc' }]);
     };
-
-        const handleSelect = (itemId : string) => {
-          setSelectedItems((prevItems : any) => {
-              if (prevItems.includes(itemId)) {
-                  return prevItems.filter((item : any) => item !== itemId);
-              } else {
-                  return [...prevItems, itemId];
-              }
-          });
-      };
 
     const handleMergeSelect = (itemId: string, kg: number, colorId: string) => {
         setSelectedForMerge((prev) => {
@@ -105,18 +116,53 @@ const ContoTerziList = () => {
         });
     };
 
-    const toggleIsAllSelected = (id : string) => {
-        setSelectedForAdditionalProcessing(prev => ({
-            ...prev,
-            [id]: { ...prev[id], isAllSelected: !prev[id].isAllSelected }
-        }));
+
+    const handleSelect = (itemId: string) => {
+        setSelectedItems((prevItems) => {
+            const newSelectedItems = prevItems.includes(itemId)
+                ? prevItems.filter((item) => item !== itemId)
+                : [...prevItems, itemId];
+    
+            // Aggiorna lo stato isAllSelected per l'oggetto in selectedForAdditionalProcessing
+            if (selectedForAdditionalProcessing[itemId]) {
+                setSelectedForAdditionalProcessing(prev => ({
+                    ...prev,
+                    [itemId]: { ...prev[itemId], isAllSelected: newSelectedItems.includes(itemId) }
+                }));
+            }
+    
+            return newSelectedItems;
+        });
     };
     
 
-    const handleAddForProcessing = (bene : any) => {
+    const handleToggleAllSelected = (id : string) => {
+        setAllSelectedStates(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+        console.log(allSelectedStates)
+    };
+    
+    const handleRemoveItem = (id : string) => {
+        setSelectedForAdditionalProcessing((prev) => {
+            const newState = { ...prev };
+            delete newState[id];
+            return newState;
+        });
+
+        
+    };
+
+    const handleAddForProcessing = (bene: any) => {
         setSelectedForAdditionalProcessing(prev => ({
             ...prev,
-            [bene._id]: { ...bene, isAllSelected: false } // Imposta un valore iniziale di 1 kg
+            [bene._id]: bene
+        }));
+    
+        // Imposta lo stato iniziale nella allSelectedStates
+        setAllSelectedStates(prev => ({
+            ...prev // o true, a seconda del comportamento desiderato
         }));
     };
 
@@ -127,19 +173,77 @@ const ContoTerziList = () => {
         }));
     };
 
-    const filteredItems = selectedColorId
-    ? selectedItems
-        .map(itemId => allContoTerzi.flatMap(conto => conto.beni).find(bene => bene._id === itemId))
-        .filter(item => item && item.colore?._id === selectedColorId)
-        .map(bene => ({ ...bene, isAllSelected: false }))
-    : selectedItems
-        .map(itemId => allContoTerzi.flatMap(conto => conto.beni).find(bene => bene._id === itemId))
-        .map(bene => ({ ...bene, isAllSelected: false }));
+    const handleNChange = (id : string, newN : number) => {
+        setSelectedForAdditionalProcessing(prev => ({
+            ...prev,
+            [id]: { ...prev[id], n: newN }
+        }));
+    };
+
+    // lavorata
+
+
+    const handleAddToLavorata = (bene: any, isMerge = false, totalKg = 0) => {
+        let newItem : NewItemType
+    
+        if (isMerge) {
+            // Gestisci l'aggiunta durante il merge
+            let mergedIds = selectedForMerge.map(id => filteredItems.find(b => b._id === id));
+            let mergedContoterziIds = mergedIds.map(b => b.contoterzi);
+    
+            newItem = {
+                colore: mergedIds[0].colore || '', // Assumi il colore del primo elemento o un default
+                hex: mergedIds[0].colore?.hex || '',
+                kg: totalKg, // Usa il valore fornito dal TextField
+                lotto: "Merged",
+                contoterzi: mergedContoterziIds, // Array di ID contoterzi
+                beneIds: selectedForMerge, // Array di ID bene
+            };
+        } else {
+            // Gestisci l'aggiunta normale
+            newItem = {
+                colore: bene.colore || '', 
+                hex: bene.colore?.hex || '',
+                kg: bene.kg,
+                lotto: bene.lotto,
+                n: bene.n,
+                contoterzi: bene.contoterzi,
+                beneId: bene._id // ID singolo di bene
+            };
+        }
+    
+        setLavorata(prev => [...prev, newItem]);
+    };
+    
+
+    const handleRemoveFromLavorata = (index : number) => {
+        setLavorata((prev) => prev.filter((_, i) => i !== index));
+    };
+    
+
+    const filteredItems = selectedItems
+    .map(itemId => allContoTerzi.flatMap(conto => 
+        conto.beni.map((bene : any) => ({ 
+            ...bene, 
+            contoterzi: conto._id, 
+            ddtId: conto.ddt?.id 
+        }))
+    ).find(bene => bene._id === itemId))
+    .filter(item => item && (!selectedColorId || item.colore?._id === selectedColorId));
     console.log(filteredItems)
 
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
+
+
+
+    ///////////////
+
+
+
+
+
 
     const color = ["#54478c","#2c699a","#048ba8","#0db39e","#16db93","#83e377","#b9e769","#efea5a","#f1c453","#f29e4c"]
 
@@ -211,7 +315,7 @@ const ContoTerziList = () => {
                                                 </TableCell>
                                                 <TableCell>{bene.lotto?.name}/{bene.colore?.codice}</TableCell>
                                                 <TableCell>{bene.kg}</TableCell>
-                                                <TableCell>{/* Altre informazioni di bene */}</TableCell>
+                                                <TableCell>{bene.n}</TableCell>
                                                 <TableCell>
                                                     <Checkbox
                                                         checked={selectedItems.includes(bene._id.toString())}
@@ -242,54 +346,70 @@ const ContoTerziList = () => {
                 </IconButton>
             </Typography>
             <Button onClick={() => setShowMergeCheckbox(!showMergeCheckbox)}>Fondi</Button>
-              <Typography>Elementi Selezionati:</Typography>
-              <List>
-                {filteredItems.map((bene) => {
-                    console.log(bene);
-                    return bene ? (
-                    <ListItem key={bene._id} divider>
-                        {showMergeCheckbox && (
-                        <ListItemIcon>
-                            <Checkbox 
-                                checked={selectedForMerge.includes(bene._id)}
-                                onChange={() => handleMergeSelect(bene._id, bene.kg, bene?.colore?._id)}
+            <Typography>Elementi Selezionati:</Typography>
+            <Box sx={{minHeight: "400"}}>
+                <List >
+                    {filteredItems.map((bene) => {
+                        console.log(bene);
+                        return bene ? (
+                        <ListItem key={bene._id} divider>
+                            {showMergeCheckbox && (
+                            <ListItemIcon>
+                                <Checkbox 
+                                    checked={selectedForMerge.includes(bene._id)}
+                                    onChange={() => handleMergeSelect(bene._id, bene.kg, bene?.colore?._id)}
+                                />
+                            </ListItemIcon>
+                            )}
+                            <ListItemText 
+                                primary = 
+                                {
+                                    <Box display="flex" alignItems="center" gap={1}>
+                                        <Card sx={{ height: "20px", width: "20px", backgroundColor: bene.colore?.hex }} />
+                                        <span>
+                                            {`${bene.colore?.name} - ${bene.lotto?.name || "Merged"}/${bene.colore?.codice || ""}, Kg: ${bene.kg}, Balle: ${bene.n}`}
+                                        </span>
+                                    </Box>
+                                }
+                            // Aggiungi qui altre informazioni se necessario
                             />
-                        </ListItemIcon>
-                        )}
-                        <ListItemText 
-                            primary = 
-                            {
-                                <Box display="flex" alignItems="center" gap={1}>
-                                    <Card sx={{ height: "20px", width: "20px", backgroundColor: bene.colore?.hex }} />
-                                    <span>
-                                        {`${bene.colore?.name} - ${bene.lotto?.name}/${bene.colore?.codice}, Kg: ${bene.kg}`}
-                                    </span>
-                                </Box>
-                            }
-                        // Aggiungi qui altre informazioni se necessario
-                        />
-                        <Checkbox
-                            checked={bene.isAllSelected}
-                            onChange={() => toggleIsAllSelected(bene._id)}
-                        />
-                        <IconButton onClick={() => handleAddForProcessing(bene)}>
-                            <AddIcon /> {/* Icona per aggiungere l'elemento */}
-                        </IconButton>
-                        {/* Se vuoi aggiungere icone o altri elementi alla fine di ogni riga, puoi farlo qui */}
-                    </ListItem>
-                    ) : null;
-                })}
+                            <Typography id="body2" variant="body2" component="h4">
+                                Seleziona tutto
+                            </Typography>
+                            <Checkbox
+                                checked={allSelectedStates[bene._id] || false}
+                                onChange={() => handleToggleAllSelected(bene._id)}
+                            />
+                            <IconButton onClick={() => handleAddForProcessing(bene)}>
+                                <AddIcon /> {/* Icona per aggiungere l'elemento */}
+                            </IconButton>
+                            {/* Se vuoi aggiungere icone o altri elementi alla fine di ogni riga, puoi farlo qui */}
+                        </ListItem>
+                        ) : null;
+                    })}
                 </List>
-              <Divider />
-              {showMergeCheckbox && (
+            </Box>
+
+
+
+            <Divider />
+
+            <Box sx={{minHeight: "400px"}}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    Selezionati 
+                </Typography>
+                {showMergeCheckbox && (
                   <Box>
                       <Typography>Totale kg:</Typography>
-                      <TextField value={totalKg} type="number" />
+                      <TextField value={totalKg} type="number" variant='standard'/>
+                      <IconButton onClick={() => handleAddToLavorata(null, true, totalKg)}>
+                         <AddIcon /> 
+                      </IconButton>
                   </Box>
-              )}
+                )}
               <List>
                     {Object.values(selectedForAdditionalProcessing).map((item) => { 
-                        console.log(item.kg)
+                        console.log(item, allSelectedStates)
                         return (
                         <ListItem key={item._id}>
                             <ListItemText primary={
@@ -299,10 +419,13 @@ const ContoTerziList = () => {
                                             {`${item.colore?.name} - ${item.lotto?.name}/${item.colore?.codice}`}
                                         </span>
                                     </Box>}/> 
-                                {item?.isAllSelected && <Typography color="green">Tutto</Typography>}
+                                    {allSelectedStates[item._id] && <Typography color="green">Tutto</Typography>}
+
                             <TextField
                                 type="number"
+                                variant='standard'
                                 value={item.kg}
+                                placeholder='Kg'
                                 onChange={(e) => {
                                     const newKg = Number(e.target.value);
                                     if (!isNaN(newKg)) {
@@ -311,10 +434,67 @@ const ContoTerziList = () => {
                                 }}
                                 inputProps={{ min: 1 }}
                             />
-                        </ListItem>
-    )})}
+                            <TextField
+                                variant='standard'
+                                type="number"
+                                placeholder='Balle'
+                                value={item.n || 0}  // Assicurati che 'item.n' sia definito nel tuo stato iniziale
+                                onChange={(e) => {
+                                    const newN = Number(e.target.value);
+                                    if (!isNaN(newN)) {
+                                        handleNChange(item._id, newN);
+                                    }
+                                }}
+                                inputProps={{ min: 0 }}  // Imposta un valore minimo appropriato
+                            />
+                            <IconButton onClick={() => handleAddToLavorata(item)}>
+                                <AddIcon /> {/* Icona per aggiungere l'elemento */}
+                            </IconButton>
+                            <IconButton onClick={() => handleRemoveItem(item._id)}>
+                                <CloseIcon /> {/* Icona per la rimozione */}
+                            </IconButton>
+                        </ListItem>  
+                    )})}
                 </List>
-              <Button onClick={closeModal}>Chiudi</Button>
+            </Box>
+
+            <Divider sx={{ my: 2 }}/>
+
+            <Box sx={{ my: 2 }}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Data Uscita"
+                            type="date"
+                            variant="outlined"
+                            // Gestisci onChange ecc.
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            label="Numero DDT Ricevuto"
+                            type="number"
+                            variant="outlined"
+                        />
+                    </Grid>
+                </Grid>
+            </Box>
+                                
+            {lavorata.map((item : any, index: number) => {
+                console.log(lavorata)
+                return(
+                <Paper key={index} sx={{ p: 2, my: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Card sx={{ height: 20, width: 20, backgroundColor: item.hex }} />
+                    <Typography variant="body1">
+                        {`${item.colore?.name} - ${item.lotto || "Unito"}/${item.colore.codice}, Kg: ${item.kg}, Balle: ${item.n}`}
+                    </Typography>
+                    <IconButton onClick={() => handleRemoveFromLavorata(index)}>
+                        <CloseIcon />
+                    </IconButton>
+                </Paper>
+            )})}
           </Box>
         </Modal>
       </>
