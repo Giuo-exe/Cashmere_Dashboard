@@ -1,12 +1,25 @@
 import React, { useMemo, useState } from 'react';
-import { Box, Card, CardContent, Typography, Table, TableHead, TableBody, TableRow, TableCell, Select, CardHeader,MenuItem, IconButton, Checkbox, Stack, Button, Modal, Divider, TextField } from "@mui/material";
+import { Box, Card, CardContent, Typography, Table, TableHead, TableBody, TableRow, TableCell, Select, 
+    CardHeader,MenuItem, IconButton, Checkbox, Stack, Button, Modal, Divider, TextField, ListItem, ListItemIcon, ListItemText, List } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTable, useList } from "@refinedev/core";
 import CustomButton from "components/common/CustomBotton";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
 
+interface BeneWithKg {
+    _id: string;
+    kg: number;
+    colore?: { hex: string; name: string; _id: string, codice: string };
+    lotto?: { name: string; codice: string };
+    isAllSelected: boolean
+    // Aggiungi altre proprietà necessarie qui
+}
+
+// Definire il tipo per lo stato
+type AdditionalProcessingState = Record<string, BeneWithKg>;
 
 const modalStyle = {
   position: 'absolute' as 'absolute',
@@ -17,6 +30,8 @@ const modalStyle = {
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
+  maxHeight: 800,
+  overflowY: "auto",
   pt: 2,
   px: 4,
   pb: 3,
@@ -46,6 +61,10 @@ const ContoTerziList = () => {
     const [showMergeCheckbox, setShowMergeCheckbox] = useState(false);
     const [totalKg, setTotalKg] = useState(0);
     const [selectedForMerge, setSelectedForMerge] = useState<string[]>([]);
+    const [selectedColorId, setSelectedColorId] = useState<string | null>(null);
+    const [selectedForAdditionalProcessing, setSelectedForAdditionalProcessing] = useState<AdditionalProcessingState>({});
+
+
 
 
     const toggleSort = (field : any) => {
@@ -62,23 +81,62 @@ const ContoTerziList = () => {
           });
       };
 
-      const handleMergeSelect = (itemId : string, kg : number) => {
-        setSelectedForMerge((prev : any) => {
-            const newSelected = prev.includes(itemId) 
-                ? prev.filter((id : any)=> id !== itemId) 
-                : [...prev, itemId];
-
-            // Calcola la nuova somma totale dei kg
-            const newTotalKg = newSelected.reduce((total : any, id : any) => {
-                // Trova l'elemento con l'ID corrispondente e aggiungi il suo kg al totale
-                const item = allContoTerzi.flatMap(conto => conto.beni).find(bene => bene._id === id);
-                return total + (item ? item.kg : 0);
-            }, 0);
-
-            setTotalKg(newTotalKg);
-            return newSelected;
+    const handleMergeSelect = (itemId: string, kg: number, colorId: string) => {
+        setSelectedForMerge((prev) => {
+          const newSelected = prev.includes(itemId) 
+            ? prev.filter((id) => id !== itemId) 
+            : [...prev, itemId];
+      
+          // Se è il primo elemento selezionato, imposta il colore, altrimenti rimuovi il filtro se nessun elemento è selezionato
+          if (newSelected.length === 1) {
+            setSelectedColorId(colorId);
+          } else if (newSelected.length === 0) {
+            setSelectedColorId(null);
+          }
+      
+          // Calcola la nuova somma totale dei kg
+          const newTotalKg = newSelected.reduce((total, id) => {
+            const item = allContoTerzi.flatMap(conto => conto.beni).find(bene => bene._id === id);
+            return total + (item ? item.kg : 0);
+          }, 0);
+      
+          setTotalKg(newTotalKg);
+          return newSelected;
         });
     };
+
+    const toggleIsAllSelected = (id : string) => {
+        setSelectedForAdditionalProcessing(prev => ({
+            ...prev,
+            [id]: { ...prev[id], isAllSelected: !prev[id].isAllSelected }
+        }));
+    };
+    
+
+    const handleAddForProcessing = (bene : any) => {
+        setSelectedForAdditionalProcessing(prev => ({
+            ...prev,
+            [bene._id]: { ...bene, isAllSelected: false } // Imposta un valore iniziale di 1 kg
+        }));
+    };
+
+    const handleKgChange = (id : string, newKg : number) => {
+        setSelectedForAdditionalProcessing(prev => ({
+            ...prev,
+            [id]: { ...prev[id], kg: newKg,  }
+        }));
+    };
+
+    const filteredItems = selectedColorId
+    ? selectedItems
+        .map(itemId => allContoTerzi.flatMap(conto => conto.beni).find(bene => bene._id === itemId))
+        .filter(item => item && item.colore?._id === selectedColorId)
+        .map(bene => ({ ...bene, isAllSelected: false }))
+    : selectedItems
+        .map(itemId => allContoTerzi.flatMap(conto => conto.beni).find(bene => bene._id === itemId))
+        .map(bene => ({ ...bene, isAllSelected: false }));
+    console.log(filteredItems)
+
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -136,7 +194,7 @@ const ContoTerziList = () => {
                                             <TableCell sx={{flex: 0.30}}>Colore</TableCell>
                                             <TableCell sx={{flex: 0.20}}>Lotto</TableCell>
                                             <TableCell sx={{flex: 0.15}} >Kg</TableCell>
-                                            <TableCell sx={{flex: 0.15}}>N</TableCell>
+                                            <TableCell sx={{flex: 0.15}}>Balle </TableCell>
                                             <TableCell sx={{flex: 0.20}}>Seleziona</TableCell> {/* Aggiunto header per la checkbox */}
                                         </TableRow>
                                     </TableHead>
@@ -185,20 +243,43 @@ const ContoTerziList = () => {
             </Typography>
             <Button onClick={() => setShowMergeCheckbox(!showMergeCheckbox)}>Fondi</Button>
               <Typography>Elementi Selezionati:</Typography>
-                <ul>
-                  {selectedItems.map((itemId : string) => {
-                      const item = allContoTerzi.flatMap(conto => conto.beni).find(bene => bene._id === itemId);
-                      return (
-                          <li key={itemId}>
-                              {showMergeCheckbox && <Checkbox 
-                                  checked={selectedForMerge.includes(itemId)}
-                                  onChange={() => handleMergeSelect(itemId, item ? item.kg : 0)}
-                              />}
-                              {itemId}
-                          </li>
-                      );
-                  })}
-                </ul>
+              <List>
+                {filteredItems.map((bene) => {
+                    console.log(bene);
+                    return bene ? (
+                    <ListItem key={bene._id} divider>
+                        {showMergeCheckbox && (
+                        <ListItemIcon>
+                            <Checkbox 
+                                checked={selectedForMerge.includes(bene._id)}
+                                onChange={() => handleMergeSelect(bene._id, bene.kg, bene?.colore?._id)}
+                            />
+                        </ListItemIcon>
+                        )}
+                        <ListItemText 
+                            primary = 
+                            {
+                                <Box display="flex" alignItems="center" gap={1}>
+                                    <Card sx={{ height: "20px", width: "20px", backgroundColor: bene.colore?.hex }} />
+                                    <span>
+                                        {`${bene.colore?.name} - ${bene.lotto?.name}/${bene.colore?.codice}, Kg: ${bene.kg}`}
+                                    </span>
+                                </Box>
+                            }
+                        // Aggiungi qui altre informazioni se necessario
+                        />
+                        <Checkbox
+                            checked={bene.isAllSelected}
+                            onChange={() => toggleIsAllSelected(bene._id)}
+                        />
+                        <IconButton onClick={() => handleAddForProcessing(bene)}>
+                            <AddIcon /> {/* Icona per aggiungere l'elemento */}
+                        </IconButton>
+                        {/* Se vuoi aggiungere icone o altri elementi alla fine di ogni riga, puoi farlo qui */}
+                    </ListItem>
+                    ) : null;
+                })}
+                </List>
               <Divider />
               {showMergeCheckbox && (
                   <Box>
@@ -206,6 +287,33 @@ const ContoTerziList = () => {
                       <TextField value={totalKg} type="number" />
                   </Box>
               )}
+              <List>
+                    {Object.values(selectedForAdditionalProcessing).map((item) => { 
+                        console.log(item.kg)
+                        return (
+                        <ListItem key={item._id}>
+                            <ListItemText primary={
+                                    <Box display="flex" alignItems="center" gap={1}>
+                                        <Card sx={{ height: "20px", width: "20px", backgroundColor: item.colore?.hex }} />
+                                        <span>
+                                            {`${item.colore?.name} - ${item.lotto?.name}/${item.colore?.codice}`}
+                                        </span>
+                                    </Box>}/> 
+                                {item?.isAllSelected && <Typography color="green">Tutto</Typography>}
+                            <TextField
+                                type="number"
+                                value={item.kg}
+                                onChange={(e) => {
+                                    const newKg = Number(e.target.value);
+                                    if (!isNaN(newKg)) {
+                                        handleKgChange(item._id, newKg);
+                                    }
+                                }}
+                                inputProps={{ min: 1 }}
+                            />
+                        </ListItem>
+    )})}
+                </List>
               <Button onClick={closeModal}>Chiudi</Button>
           </Box>
         </Modal>
