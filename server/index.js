@@ -11,6 +11,7 @@ import pagamentoRouter from "./routes/pagamento.routes.js"
 import lottoRouter from "./routes/lotto.routes.js"
 import coloreRouter from "./routes/colore.routes.js"
 import contoterziRouter from "./routes/contoterzi.routes.js"
+import lavorataRouter from "./routes/lavorata.routes.js"
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/api/v1/pagamenti", pagamentoRouter);
 app.use("/api/v1/lotti", lottoRouter);
 app.use("/api/v1/colori", coloreRouter)
 app.use("/api/v1/contoterzi", contoterziRouter)
+app.use("/api/v1/lavorata", lavorataRouter)
 
 
 

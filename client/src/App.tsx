@@ -266,6 +266,16 @@ function App() {
                     canDelete: true,
                   },
                 },
+                { 
+                  name: "lavorata",
+                  options: {label : 'Lavorata'},
+                  icon: <EuroIcon/>,
+                  list: "/lavorata",
+                  create: "/lavorata/create",
+                  edit: "/lavorata/edit/:id",
+                  show: "/lavorata/show/:id",
+                  
+                },
               ]}
               options={{
                 syncWithLocation: true,
@@ -327,8 +337,11 @@ function App() {
                     <Route path="create" element={<ClienteCreate />} />
                     <Route path="show/:id" element={<ClientiShow />} />
                     <Route path="edit/:id" element={<ClienteEdit />} />
+                  </Route>
 
-
+                  <Route path="/lavorata">
+                    <Route index element={<ClienteList />} />
+                    <Route path="create"  />
                   </Route>
 
                   <Route path="/colori">

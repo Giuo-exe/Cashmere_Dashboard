@@ -13,6 +13,7 @@ const LavorataSchema = new mongoose.Schema({
         }],
     default: []},
     datauscita: {type: Date, required: true},
+    ddtuscita: {type: String, required: true} 
 });
 
 const lavorataModel = mongoose.model("Lavorata", LavorataSchema);

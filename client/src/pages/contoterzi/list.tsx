@@ -8,6 +8,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
+import { useModalForm } from '@refinedev/react-hook-form';
 
 interface BeneWithKg {
     _id: string;
@@ -45,12 +46,12 @@ const modalStyle = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 1200,
+  width: "70vw",
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
   maxHeight: 1200,
-  height: 1000,
+  height: "80vh",
   overflowY: "auto",
   pt: 2,
   px: 4,
@@ -60,6 +61,18 @@ const modalStyle = {
 
 const ContoTerziList = () => {
     const navigate = useNavigate();
+
+    const {
+        formState: { errors },
+        refineCore: { onFinish, formLoading },
+        modal: { visible, close, show },
+        register,
+        handleSubmit,
+        saveButtonProps,
+    } = useModalForm({
+        refineCoreProps: { action: "create", resource: "lavorata" },
+    });
+
     const {
         tableQueryResult: { data, isLoading, isError },
         current,
@@ -85,6 +98,11 @@ const ContoTerziList = () => {
     const [selectedForAdditionalProcessing, setSelectedForAdditionalProcessing] = useState<AdditionalProcessingState>({});
     const [allSelectedStates, setAllSelectedStates] = useState<{ [key: string]: boolean }>({});
     const [lavorata, setLavorata] = useState<LavorataItem[]>([]);
+    const [queryData, setQueryData] = useState({
+        dataUscita: '',
+        numeroDDT: '',
+        lavorataJSON: '',
+    });
 
     // Funzioni per il form
 
@@ -240,7 +258,14 @@ const ContoTerziList = () => {
 
     ///////////////
 
-
+    // Prepara l'array lavorata come stringa JSON prima dell'invio
+    const handleFormSubmit = async (data : any) => {
+        const submissionData = {
+            ...data,
+            lavorataJSON : lavorata// Include it in the submission data
+        };
+        console.log(submissionData, "sdasdsaddsa") 
+    };
 
 
 
@@ -460,42 +485,55 @@ const ContoTerziList = () => {
 
             <Divider sx={{ my: 2 }}/>
 
-            <Box sx={{ my: 2 }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Data Uscita"
-                            type="date"
-                            variant="outlined"
-                            // Gestisci onChange ecc.
-                        />
+            <form onSubmit={handleSubmit(handleFormSubmit)}>
+
+                <Box sx={{ my: 2 }}>
+                    <Grid container>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                {...register("dataUscita")}
+                                label="Data Uscita"
+                                type="date"
+                                variant="outlined"
+                                error={!!errors.dataUscita}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField
+                                fullWidth
+                                {...register("ddtuscita")}
+                                label="Numero DDT Ricevuto"
+                                type="number"
+                                variant="outlined"
+                                name="numeroDDT"
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Numero DDT Ricevuto"
-                            type="number"
-                            variant="outlined"
-                        />
-                    </Grid>
-                </Grid>
+                </Box>
+                                    
+                {lavorata.map((item : any, index: number) => {
+                    console.log(lavorata)
+                    return(
+                    <Paper key={index} sx={{ p: 2, my: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Card sx={{ height: 20, width: 20, backgroundColor: item.hex }} />
+                        <Typography variant="body1">
+                            {`${item.colore?.name} - ${item.lotto || "Unito"}/${item.colore.codice}, Kg: ${item.kg}, Balle: ${item.n}`}
+                        </Typography>
+                        <IconButton onClick={() => handleRemoveFromLavorata(index)}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Paper>
+                )})}
+
+                <input
+                        type="hidden"
+                        name="lavorataJSON"
+                        value={queryData.lavorataJSON}
+                    />
+                    <Button type="submit">Invia Query</Button>
+                </form>
             </Box>
-                                
-            {lavorata.map((item : any, index: number) => {
-                console.log(lavorata)
-                return(
-                <Paper key={index} sx={{ p: 2, my: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Card sx={{ height: 20, width: 20, backgroundColor: item.hex }} />
-                    <Typography variant="body1">
-                        {`${item.colore?.name} - ${item.lotto || "Unito"}/${item.colore.codice}, Kg: ${item.kg}, Balle: ${item.n}`}
-                    </Typography>
-                    <IconButton onClick={() => handleRemoveFromLavorata(index)}>
-                        <CloseIcon />
-                    </IconButton>
-                </Paper>
-            )})}
-          </Box>
         </Modal>
       </>
     );
