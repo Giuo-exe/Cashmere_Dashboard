@@ -9,6 +9,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import { useModalForm } from '@refinedev/react-hook-form';
+import { useForm } from '@refinedev/react-hook-form';
 
 interface BeneWithKg {
     _id: string;
@@ -64,14 +65,9 @@ const ContoTerziList = () => {
 
     const {
         formState: { errors },
-        refineCore: { onFinish, formLoading },
-        modal: { visible, close, show },
         register,
         handleSubmit,
-        saveButtonProps,
-    } = useModalForm({
-        refineCoreProps: { action: "create", resource: "lavorata" },
-    });
+    } = useForm();
 
     const {
         tableQueryResult: { data, isLoading, isError },
@@ -259,12 +255,32 @@ const ContoTerziList = () => {
     ///////////////
 
     // Prepara l'array lavorata come stringa JSON prima dell'invio
-    const handleFormSubmit = async (data : any) => {
+    const handleFormSubmit = (data : any) => {
         const submissionData = {
             ...data,
             lavorataJSON : lavorata// Include it in the submission data
         };
         console.log(submissionData, "sdasdsaddsa") 
+    };
+
+    const onSubmit = async (data : any) => {
+        // Your form submission logic here
+
+        const submissionData = {
+            ...data,
+            lavorata : lavorata// Include it in the submission data
+        };
+
+        console.log(submissionData, "diobon");
+
+        // Example: POST request to your server
+        await fetch('http://localhost:8080/api/v1/lavorata', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(submissionData),
+        });
     };
 
 
@@ -485,13 +501,14 @@ const ContoTerziList = () => {
 
             <Divider sx={{ my: 2 }}/>
 
-            <form onSubmit={handleSubmit(handleFormSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)}>
 
                 <Box sx={{ my: 2 }}>
                     <Grid container>
                         <Grid item xs={12} md={6}>
                             <TextField
                                 fullWidth
+                                required
                                 {...register("dataUscita")}
                                 label="Data Uscita"
                                 type="date"
@@ -502,11 +519,11 @@ const ContoTerziList = () => {
                         <Grid item xs={12} md={6}>
                             <TextField
                                 fullWidth
+                                required
                                 {...register("ddtuscita")}
                                 label="Numero DDT Ricevuto"
                                 type="number"
                                 variant="outlined"
-                                name="numeroDDT"
                             />
                         </Grid>
                     </Grid>

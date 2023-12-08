@@ -278,7 +278,7 @@ function App() {
                 },
               ]}
               options={{
-                syncWithLocation: true,
+                syncWithLocation: false,
                 warnWhenUnsavedChanges: true,
               }}
             >

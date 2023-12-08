@@ -3,22 +3,34 @@ import Lavorata from "../mongodb/models/lavorata.js"
 import ContoTerzi from "../mongodb/models/contoterzi.js"
 
 const createLavorata  = async (req,res) => {
-    const {lavorataJSON, dataUscita, numeroDDT} = req.params
+    const {lavorata , dataUscita, ddtuscita} = req.body 
+
+    let lavorataJSON;
+    try {
+        // Parse the lavorataJSON string into an array
+        lavorataJSON = JSON.parse(lavorata);
+        if (!Array.isArray(lavorataJSON)) {
+            return res.status(400).send({ error: "Invalid lavorataJSON format" });
+        }
+    } catch (error) {
+        return res.status(400).send({ error: "Invalid JSON format in lavorataJSON" });
+    }
 
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
         // Iterate over each item in lavorataJSON
-        for (const item of lavorataJSON) {
+        for (const item of lavorata) {
             // Create a new Lavorata document
+            console.log(item)
             const newLavorata = await Lavorata.create([{
                 lavorata: [item],
                 datauscita: dataUscita,
-                ddtentrata: numeroDDT
+                ddtentrata: ddtuscita
             }], { session });
 
-            if(newLavorata){
+            if (newLavorata) {
                 if (Array.isArray(item.contoterzi)) {
                     for (const contoterziId of item.contoterzi) {
                         await ContoTerzi.findByIdAndUpdate(
@@ -35,16 +47,18 @@ const createLavorata  = async (req,res) => {
                     );
                 }
             }
-            
         }
+
         await session.commitTransaction();
+        res.status(200).send({ message: "Lavorata created successfully" });
     } catch (error) {
         await session.abortTransaction();
-        throw error;
+        res.status(500).send({ error: "Transaction failed", details: error.message });
     } finally {
         session.endSession();
     }
 };
+
 
 export {
     createLavorata
