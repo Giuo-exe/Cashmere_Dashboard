@@ -59,6 +59,7 @@ import Dashboard from "pages/dashboard";
 import ClientiShow from "pages/clienti/show";
 import { DdtList,DdtCreate,DdtPreCreate, DdtShow } from "pages/ddt";
 import { Title } from "./components/title";
+import { LavorataList } from "pages/lavorata";
 
 
 const axiosInstance = axios.create();
@@ -340,7 +341,7 @@ function App() {
                   </Route>
 
                   <Route path="/lavorata">
-                    <Route index element={<ClienteList />} />
+                    <Route index element={<LavorataList />} />
                     <Route path="create"  />
                   </Route>
 

@@ -94,11 +94,20 @@ const ContoTerziList = () => {
     const [selectedForAdditionalProcessing, setSelectedForAdditionalProcessing] = useState<AdditionalProcessingState>({});
     const [allSelectedStates, setAllSelectedStates] = useState<{ [key: string]: boolean }>({});
     const [lavorata, setLavorata] = useState<LavorataItem[]>([]);
-    const [queryData, setQueryData] = useState({
-        dataUscita: '',
-        numeroDDT: '',
-        lavorataJSON: '',
+
+    const lavorataData = GetInfo()
+
+    console.log(lavorataData)
+
+    allContoTerzi.forEach(contoterziItem => {
+        if (contoterziItem.lavorata && contoterziItem.lavorata.length > 1) {
+            contoterziItem.beni = contoterziItem.beni.map((bene : any) => {
+                const matchedLavorataBene = lavorataData.find(l => l._id === bene._id);
+                return matchedLavorataBene ? matchedLavorataBene : bene;
+            });
+        }
     });
+
 
     // Funzioni per il form
 
@@ -520,7 +529,7 @@ const ContoTerziList = () => {
                             <TextField
                                 fullWidth
                                 required
-                                {...register("ddtuscita")}
+                                {...register("ddtUscita")}
                                 label="Numero DDT Ricevuto"
                                 type="number"
                                 variant="outlined"
@@ -542,12 +551,6 @@ const ContoTerziList = () => {
                         </IconButton>
                     </Paper>
                 )})}
-
-                <input
-                        type="hidden"
-                        name="lavorataJSON"
-                        value={queryData.lavorataJSON}
-                    />
                     <Button type="submit">Invia Query</Button>
                 </form>
             </Box>
@@ -555,5 +558,13 @@ const ContoTerziList = () => {
       </>
     );
 };
+
+const GetInfo = () => {
+    const { data, isLoading, isError } = useList({ resource: `contoterzi/lavorata` });
+
+    const allLotti = data?.data ?? [];
+    
+    return allLotti;
+}
 
 export default ContoTerziList;

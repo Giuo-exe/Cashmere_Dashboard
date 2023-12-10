@@ -9,7 +9,8 @@ const LavorataSchema = new mongoose.Schema({
             contoterzi: {type: mongoose.Schema.Types.ObjectId, ref: "ContoTerzi"},
             kg: {type: Number},
             n: {type: Number},
-            checked : {type: Boolean, default: false}
+            checked : {type: Boolean, default: false},
+            beneId : {type: String}
         }],
     default: []},
     datauscita: {type: Date, required: true},

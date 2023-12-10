@@ -8,18 +8,7 @@ const ContoterziSchema = new mongoose.Schema({
         kg: {type: Number},
         n: {type: Number},
     }],
-    lavorata: {type: 
-        [{
-            colore:{type: mongoose.Schema.Types.ObjectId, ref: "Colore"},
-            hex: {type: String},
-            lotto: {type: mongoose.Schema.Types.ObjectId, ref: "Lotto"},
-            kg: {type: Number},
-            n: {type: Number},
-            scarto: {type: Number, default: 0},
-            datauscita: {type: Date},
-            checked : {type: Boolean, default: false}
-        }],
-        default: []},
+    lavorata: [{type:mongoose.Schema.Types.ObjectId, ref: "Lavorata"}],
     tara: {type: Number},
     dataentrata: {type: Date, required: true},
     ddt: {type: mongoose.Schema.Types.ObjectId, ref: "Ddt"}
@@ -243,6 +232,89 @@ ContoterziSchema.statics.Aggregazione = async function (id) {
       const risultato = await this.aggregate(pipeline).exec();
     
       return risultato;
+}
+
+ContoterziSchema.statics.Lavorata = async function (id){
+  const pipeline =
+    [
+      {
+          $lookup: {
+              from: "lavoratas",
+              localField: "lavorata",
+              foreignField: "_id",
+              as: "lavorataDetails"
+          }
+      },
+      {
+          $addFields: {
+              lavorataFlattened: {
+                  $reduce: {
+                      input: "$lavorataDetails",
+                      initialValue: [],
+                      in: { $concatArrays: ["$$value", "$$this.lavorata"] }
+                  }
+              }
+          }
+      },
+      {
+          $addFields: {
+              beni: {
+                  $map: {
+                      input: "$beni",
+                      as: "bene",
+                      in: {
+                          $mergeObjects: [
+                              "$$bene",
+                              {
+                                  kg: {
+                                      $subtract: [
+                                          "$$bene.kg",
+                                          {
+                                              $sum: {
+                                                  $map: {
+                                                      input: {
+                                                          $filter: {
+                                                              input: "$lavorataFlattened",
+                                                              as: "lavorataItem",
+                                                              cond: 
+                                                                { $eq: ["$$lavorataItem.beneId", { $convert: { input: "$$bene._id", to: "string" }}] }
+                                                          }
+                                                      },
+                                                      as: "filteredLavorata",
+                                                      in: "$$filteredLavorata.kg"
+                                                  }
+                                              }
+                                          }
+                                      ]
+                                  }
+                              }
+                          ]
+                      }
+                  }
+              }
+          }
+      },
+      {
+        $project: {
+            beni: 1, // Mostra l'array 'beni' con tutti i suoi campi
+            lavorata: 1, // Mostra l'array 'lavorata'
+            tara: 1, // Mostra il campo 'tara'
+            dataentrata: 1, // Mostra il campo 'dataentrata'
+            ddt: 1, // Mostra il riferimento al 'Ddt'
+            // Altri campi che desideri includere nel risultato finale
+        }
+      }
+  ]
+
+  if (id) {
+    pipeline.unshift({
+      $match: { _id: new mongoose.Types.ObjectId(id) },
+    });
+  }
+
+  const risultato = await this.aggregate(pipeline).exec();
+
+  return risultato;
 }
 
 const contoterziModel = mongoose.model("ContoTerzi", ContoterziSchema);

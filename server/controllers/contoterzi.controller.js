@@ -147,6 +147,18 @@ const getSingleContoterziDifference = async (req, res) => {
   }
 };
 
+const getContoterziLavorata = async (req, res) => {
+  try{
+    const result = await ContoTerzi.Lavorata()
+    // Send the HTTP response with the result
+    res.status(200).json(result);
+
+  } catch (err) {
+    // Handle errors and send an error response
+    res.status(500).json({ error: "Error retrieving differences" });
+  }
+};
+
 const getContoterziDifference = async (req, res) => {
 
   try{
@@ -259,4 +271,6 @@ export {
     getContoterziDifference,
     lavorataContoTerzi,
     RemoveLavorata,
-    updateLavorataCheckedStatus}
+    updateLavorataCheckedStatus,
+    getContoterziLavorata
+  }
