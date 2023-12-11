@@ -234,7 +234,7 @@ const ContoTerziList = () => {
                 beneId: bene._id // ID singolo di bene
             };
         }
-    
+        console.log(newItem, "dsioadas")
         setLavorata(prev => [...prev, newItem]);
     };
     

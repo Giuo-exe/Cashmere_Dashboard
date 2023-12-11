@@ -27,6 +27,8 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 
 
 
@@ -60,6 +62,7 @@ import ClientiShow from "pages/clienti/show";
 import { DdtList,DdtCreate,DdtPreCreate, DdtShow } from "pages/ddt";
 import { Title } from "./components/title";
 import { LavorataList } from "pages/lavorata";
+import { GiacenzaList } from "pages/giacenza";
 
 
 const axiosInstance = axios.create();
@@ -213,6 +216,25 @@ function App() {
                   show: "/contoterzi/:id",
                 },
                 { 
+                  name: "lavorata",
+                  options: {label : 'Lavorata'},
+                  icon: <DoneAllIcon/>,
+                  list: "/lavorata",
+                  create: "/lavorata/create",
+                  edit: "/lavorata/edit/:id",
+                  show: "/lavorata/show/:id",
+                  
+                },
+                { 
+                  name: "giacenza",
+                  options: {label : 'Giacenza'},
+                  icon: <WarehouseIcon/>,
+                  list: "/giacenza",
+                  create: "/giacenza/create",
+                  edit: "/giacenza/edit/:id",
+                  show: "/giacenza/show/:id",
+                },
+                { 
                   name: "fatture",
                   options: {label : 'Fatture'},
                   icon: <ReceiptIcon/>,
@@ -267,16 +289,7 @@ function App() {
                     canDelete: true,
                   },
                 },
-                { 
-                  name: "lavorata",
-                  options: {label : 'Lavorata'},
-                  icon: <EuroIcon/>,
-                  list: "/lavorata",
-                  create: "/lavorata/create",
-                  edit: "/lavorata/edit/:id",
-                  show: "/lavorata/show/:id",
-                  
-                },
+                
               ]}
               options={{
                 syncWithLocation: false,
@@ -342,6 +355,11 @@ function App() {
 
                   <Route path="/lavorata">
                     <Route index element={<LavorataList />} />
+                    <Route path="create"  />
+                  </Route>
+
+                  <Route path="/giacenza">
+                    <Route index element={<GiacenzaList />} />
                     <Route path="create"  />
                   </Route>
 

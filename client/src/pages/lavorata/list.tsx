@@ -47,6 +47,8 @@ const ListLavorata = () => {
         };
     }, [filters]);
 
+    console.log(allLavorata)
+
 
     if (isLoading) return <Typography>Loading...</Typography>;
     if (isError) return <Typography>Error...</Typography>;
@@ -70,7 +72,7 @@ const ListLavorata = () => {
                             fontWeight={700}>
                             {!allLavorata.length
                                 ? "Non c'è Merce Lavorata"
-                                : "Lotti"}
+                                : "Lavorata"}
                             </Typography>
 
                         <Box
@@ -104,19 +106,6 @@ const ListLavorata = () => {
                                 handleClick={() => toggleSort("data")}
                                 backgroundColor="#475be8"
                                 color="#fcfcfc"/>
-                        </Box>
-
-                        <Box
-                            sx={{marginLeft: "auto"}}>
-                                
-                            <CustomButton
-                                title="Lotti"
-                                handleClick={() => navigate("/lotti/create")}
-                                backgroundColor="#475be8"
-                                color="#fcfcfc"
-                                icon={<Add />}
-                            />
-                            
                         </Box>
                         
                     </Box>

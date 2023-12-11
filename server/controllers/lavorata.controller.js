@@ -2,24 +2,24 @@ import mongoose from "mongoose";
 import Lavorata from "../mongodb/models/lavorata.js"
 import ContoTerzi from "../mongodb/models/contoterzi.js"
 
-const createLavorata  = async (req,res) => {
-    const {lavorata , dataUscita, ddtUscita} = req.body 
+const createLavorata = async (req, res) => {
+    const { lavorata, dataUscita, ddtUscita } = req.body;
 
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
-        // Iterate over each item in lavorataJSON
-        for (const item of lavorata) {
-            // Create a new Lavorata document
-            console.log(item)
-            const newLavorata = await Lavorata.create([{
-                lavorata: [item],
-                datauscita: dataUscita,
-                ddtuscita: ddtUscita
-            }], { session });
+        // Create a single Lavorata document with the entire lavorata array
+        const newLavorata = await Lavorata.create([{
+            lavorata: lavorata,
+            datauscita: dataUscita,
+            ddtuscita: ddtUscita
+        }], { session });
 
-            if (newLavorata) {
+        if (newLavorata) {
+            // Iterate over each item in lavorata
+            for (const item of lavorata) {
+                console.log(item);
                 if (Array.isArray(item.contoterzi)) {
                     for (const contoterziId of item.contoterzi) {
                         await ContoTerzi.findByIdAndUpdate(
@@ -79,7 +79,11 @@ const getAllLavorata = async (req,res) =>{
             })
             .populate({
                 path: "lavorata.contoterzi",
-                model: "ContoTerzi"
+                model: "ContoTerzi",
+                populate: {
+                    path: "ddt",
+                    model: "Ddt",
+                }
             });
 
         res.header("x-total-count", count);
@@ -92,8 +96,23 @@ const getAllLavorata = async (req,res) =>{
     
 }
 
+const getGiacenza = async (req,res) => {
+
+  try{
+
+    const result = await Lavorata.Giacenza()
+    // Send the HTTP response with the result
+    res.status(200).json(result);
+
+  } catch (err) {
+    // Handle errors and send an error response
+    res.status(500).json({ error: "Error retrieving Giacenza" });
+  }
+}
+
 
 export {
     createLavorata,
-    getAllLavorata
+    getAllLavorata,
+    getGiacenza
 }
