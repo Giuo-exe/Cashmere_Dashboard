@@ -18,72 +18,92 @@ const LavorataSchema = new mongoose.Schema({
 });
 
 LavorataSchema.statics.Giacenza = async function() {
+
+
     const pipeline =
     [
+      { $unwind: "$lavorata" },
       {
         $lookup: {
-          from: "colores", // Replace with the actual collection name for 'Colore'
+          from: "colores",
           localField: "lavorata.colore",
           foreignField: "_id",
           as: "colorDetails"
         }
       },
-      { $unwind: "$lavorata" },
+      { $unwind: { path: "$colorDetails", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
-          from: "contoterzis", // Replace with the actual collection name for 'ContoTerzi'
+          from: "contoterzis",
           localField: "lavorata.contoterzi",
           foreignField: "_id",
-          as: "lavorata.contoterzi"
+          as: "contoterziDetails"
         }
       },
-      { $unwind: "$colorDetails" },
-      { $unwind: { path: "$lavorata.contoterzi", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$contoterziDetails", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
-          from: "ddts", // Replace with the actual collection name for 'Ddt'
-          localField: "lavorata.contoterzi.ddt",
+          from: "ddts",
+          localField: "contoterziDetails.ddt",
           foreignField: "_id",
-          as: "lavorata.contoterzi.ddt"
+          as: "ddtDetails"
         }
       },
-      { $unwind: { path: "$lavorata.contoterzi.ddt", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$ddtDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $set: {
+          "lavorata.colorDetails": "$colorDetails",
+          "lavorata.contoterzi": {
+            $mergeObjects: [
+              "$contoterziDetails",
+              { ddt: "$ddtDetails" }
+            ]
+          },
+          "lavorata.ddtuscita": "$ddtuscita",
+          "lavorata.datauscita": "$datauscita"
+        }
+      },
       {
         $group: {
-          _id: "$colorDetails.codice",
-          lavorata: {
-            $push: {
-              hex: "$lavorata.hex",
-              lotto: "$lavorata.lotto",
-              contoterzi: "$lavorata.contoterzi",
-              ddt: "$lavorata.contoterzi.ddt",
-              kg: "$lavorata.kg",
-              n: "$lavorata.n",
-              checked: "$lavorata.checked",
-              beneId: "$lavorata.beneId",
-              ddtUscita: "$ddtuscita",
-              dataUscita: "$datauscita"
-            }
-          },
+          _id: "$lavorata.colorDetails.codice",
+          lavorata: { $push: "$lavorata" },
           totalKg: { $sum: "$lavorata.kg" },
-          codice: { $first: "$colorDetails.codice" },
-          colorInfo: { $first: "$colorDetails" }
+          codice: { $first: "$lavorata.colorDetails.codice" },
+          colorInfo: { $first: "$lavorata.colorDetails" }
         }
       },
       {
         $project: {
-          _id: 0, // Exclude _id from the result
+          _id: 0,
           codice: 1,
-          lavorata: 1,
+          lavorata: {
+            $map: {
+              input: "$lavorata",
+              as: "l",
+              in: {
+                colore: "$$l.colore",
+                hex: "$$l.hex",
+                lotto: "$$l.lotto",
+                contoterzi: "$$l.contoterzi",
+                kg: "$$l.kg",
+                n: "$$l.n",
+                checked: "$$l.checked",
+                beneId: "$$l.beneId",
+                ddtuscita: "$$l.ddtuscita",
+                datauscita: "$$l.datauscita"
+              }
+            }
+          },
           totalKg: 1,
           colorInfo: 1
         }
       }
     ]
+    
     ;
 
     const risultato = await this.aggregate(pipeline).exec();
-    
+
     return risultato;
 
 }

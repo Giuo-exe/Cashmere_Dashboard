@@ -110,9 +110,47 @@ const getGiacenza = async (req,res) => {
   }
 }
 
+const getLavorataGiacenza = async (req,res) => {
+    const {
+        _end = 10,
+        _order = 'asc',
+        _start = 0,
+        _sort = '',
+        datauscita = "",
+        name_like
+    } = req.query;
+
+    console.log(_end, _sort)
+
+    if (datauscita !== "") {
+        query.datauscita = datauscita;
+    }
+
+    if (name_like) {
+        query.name = { $regex: name_like, $options: "i" };
+    }
+
+
+    // Ensure values are numbers and not NaN
+    if (isNaN(_start)) _start = 0;
+    if (isNaN(_end)) _end = 10;
+
+    // Calculate the limit
+    const limit = _end - _start;
+    try {
+        const giacenza = await Lavorata.Giacenza();
+
+        console.log(giacenza)
+        res.status(200).json(giacenza);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 
 export {
     createLavorata,
     getAllLavorata,
-    getGiacenza
+    getGiacenza,
+    getLavorataGiacenza
 }

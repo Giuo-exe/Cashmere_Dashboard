@@ -1,9 +1,19 @@
 import React from 'react';
-import { Box, Paper, Typography, Grid } from '@mui/material';
+import { Box, Paper, Typography, Grid, Card, Stack } from '@mui/material';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import TrendingFlatIcon from '@mui/icons-material/TrendingFlat';
 
 const ListLavorataCard = (data: any) => {
   const dataArray = Object.values(data);
+  console.log(dataArray)
+
+  const getKgDifferenceColor = (originalKg : number, lavorataKg : number) => {
+    const difference = lavorataKg - originalKg;
+    if (difference > 0) return 'green';
+    if (difference < 0) return 'red';
+    return 'blue';
+  };
+
 
   return (
     <Box sx={{ flexGrow: 1, padding: 2 }}>
@@ -32,20 +42,30 @@ const ListLavorataCard = (data: any) => {
                       <>
                         <Grid item xs={12} md={5}>
                           <Paper sx={{ padding: 2, backgroundColor: '#f0f0f0' }} elevation={2}>
-                            <Typography variant="body1">DDT: {contoterziDDT}</Typography>
-                            <Typography variant="body1">Kg: {originalBene?.kg} KG</Typography>
-                            <Typography variant="body1">Codice Colore: {originalBene?.colore?.codice}</Typography>
+                            <Stack direction="row" spacing={1}>
+                              <Typography variant="body2">DDT: {contoterziDDT} Kg: {originalBene?.kg} Balle: {originalBene?.n} Colore: {lavoro?.colore?.name}/{lavoro?.colore?.codice}</Typography>
+                              <Card 
+                                sx={{height:"20px", width:"20px", backgroundColor:`${lavoro?.colore?.hex}`}}
+                              />
+                            </Stack>
                           </Paper>
                         </Grid>
-                        <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <ArrowForwardIosIcon />
+                        <Grid item xs={12} md={1} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                          <Typography variant="body2" style={{ color: getKgDifferenceColor(originalBene.kg, lavoro.kg) }}>
+                            {lavoro.kg - originalBene.kg} Kg
+                          </Typography>
+                          <TrendingFlatIcon /> {/* Custom arrow icon */}
                         </Grid>
                       </>
                     )}
                     <Grid item xs={12} md={5}>
                       <Paper sx={{ padding: 2, backgroundColor: '#f0f0f0' }} elevation={2}>
-                        <Typography variant="body1">Codice Colore Lavorata: {lavoro.colore.codice}</Typography>
-                        <Typography variant="body1">Kg Lavorata: {lavoro.kg}</Typography>
+                        <Stack direction="row" spacing={1}>
+                          <Typography variant="body2"> Lavorata: {lavoro.kg} Kg Colore: {lavoro?.colore?.name}/{lavoro?.colore?.codice}</Typography>
+                          <Card 
+                              sx={{height:"20px", width:"20px", backgroundColor:`${lavoro?.colore?.hex}`}}
+                            />
+                        </Stack>
                       </Paper>
                     </Grid>
                   </React.Fragment>

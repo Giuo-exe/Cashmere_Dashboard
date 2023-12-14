@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
 import { useModalForm } from '@refinedev/react-hook-form';
 import { useForm } from '@refinedev/react-hook-form';
+import { Snackbar } from '@mui/material';
 
 interface BeneWithKg {
     _id: string;
@@ -95,9 +96,11 @@ const ContoTerziList = () => {
     const [allSelectedStates, setAllSelectedStates] = useState<{ [key: string]: boolean }>({});
     const [lavorata, setLavorata] = useState<LavorataItem[]>([]);
 
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+
     const lavorataData = GetInfo()
 
-    console.log(lavorataData)
+    
 
     allContoTerzi.forEach(contoterziItem => {
         if (contoterziItem.lavorata && contoterziItem.lavorata.length > 1) {
@@ -272,7 +275,7 @@ const ContoTerziList = () => {
         console.log(submissionData, "sdasdsaddsa") 
     };
 
-    const onSubmit = async (data : any) => {
+    const onSubmitt = async (data : any) => {
         // Your form submission logic here
 
         const submissionData = {
@@ -290,6 +293,44 @@ const ContoTerziList = () => {
             },
             body: JSON.stringify(submissionData),
         });
+    };
+
+    const onSubmit = async (data : any) => {
+        const submissionData = {
+            ...data,
+            lavorata
+        };
+
+        console.log(submissionData, "diobon");
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/lavorata', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(submissionData),
+            });
+
+            if (response.ok) {
+                // If the submission is successful, show the Snackbar
+                setSnackbarOpen(true);
+
+                // Reload the page after a short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000); // Adjust delay as needed
+            } else {
+                // Handle unsuccessful submission
+                console.error('Submission failed', await response.json());
+            }
+        } catch (error) {
+            console.error('Error submitting form', error);
+        }
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbarOpen(false);
     };
 
 
@@ -325,6 +366,13 @@ const ContoTerziList = () => {
                   // ... Altre proprietà del bottone
                 />
             </Box>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                message="Submission successful"
+            />
 
             <Box mt="20px">
                 {allContoTerzi.map((conto, index) => {
