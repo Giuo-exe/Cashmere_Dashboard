@@ -3,8 +3,7 @@ import { useTable, useList } from "@refinedev/core";
 import GiacenzaCard from 'components/card/GiacenzaCard';
 import { Box, Skeleton, Stack, TextField, Typography } from '@mui/material';
 import CustomButton from 'components/common/CustomBotton';
-
-
+import GiacenzaBarChart from 'components/charts/GiacenzaBarChart';
 
 
 const GiacenzaList = () => {
@@ -82,6 +81,19 @@ const GiacenzaList = () => {
 
     return (
         <>
+          {isLoading ? (
+                // Visualizza lo skeleton durante il caricamento
+                <Box>
+                  <Skeleton variant="rectangular" width="100%" height={300} sx={{ marginBottom: 2 }} />
+                </Box>
+              ) : (
+                // Visualizza i dati una volta caricati
+                <GiacenzaBarChart
+                    giacenza={Giacenza}
+                    title={"Gheddafi"}
+                    value={12}
+                    type='Sugunna'/>
+          )}
          <Box width="100%" mt="20px" sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
                 {/* ... altro codice ... */}
                 <Box
