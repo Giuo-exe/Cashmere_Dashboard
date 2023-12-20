@@ -154,7 +154,7 @@ const ColoreList : React.FC<IResourceComponentsProps> = () => {
                             sx={{marginLeft: "auto"}}>
                                 
                             <CustomButton
-                                title="Lotti"
+                                title="Colori"
                                 handleClick={handleOpen}
                                 backgroundColor="#475be8"
                                 color="#fcfcfc"

@@ -99,7 +99,6 @@ LavorataSchema.statics.Giacenza = async function() {
         }
       }
     ]
-    
     ;
 
     const risultato = await this.aggregate(pipeline).exec();

@@ -30,6 +30,7 @@ const ContoTerziList = () => {
   const currentData = sorters.find(item => item.field === 'dataentrata')?.order;
   const stats = GetStats();
 
+
   const toggleSort = (field : any) => {
     setSorters([{ field, order: currentData === 'asc' ? 'desc' : 'asc' }]);
   };

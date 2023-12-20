@@ -20,6 +20,8 @@ const TotalRevenueSeries = (labels : Array<string>, series : Array<number>) => {
 
 const BarCharts = ({ title, value, series, colors, labels, type, context }: ChartProps) => {
 
+    console.log(title, value, series, colors, labels, type, context)
+
     const TotalRevenueOptions: ApexOptions = {
         chart: {
           type: 'bar',

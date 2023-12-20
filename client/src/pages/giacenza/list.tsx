@@ -36,11 +36,19 @@ const GiacenzaList = () => {
         // Apply sorting for datauscita
         if (orderDatauscita) {
             result.sort((a, b) => {
-                // Convert to Date objects if they are not already
-                const dateA = new Date(a.datauscita);
-                const dateB = new Date(b.datauscita);
-                // Subtract timestamps to get the sorting
-                return orderDatauscita === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+                    // Safely access ddtuscita and use a default value if it's undefined
+                    const kgA = a?.totalKg ?? 0; // If totalKg is undefined, use 0
+                    const kgB = b?.totalKg ?? 0; // If totalKg is undefined, use 0
+                    console.log(kgA,kgB,"qw")
+
+                    // Numeric comparison
+                    if (kgA < kgB) {
+                        return orderDdtuscita === 'asc' ? -1 : 1;
+                    }
+                    if (kgA > kgB) {
+                        return orderDdtuscita === 'asc' ? 1 : -1;
+                    }
+                    return 0;
             });
         }
     
@@ -48,8 +56,8 @@ const GiacenzaList = () => {
         if (orderDdtuscita) {
             result.sort((a, b) => {
                 // Safely access ddtuscita and use a default value if it's undefined
-                const ddtA = (a.ddtuscita || "").toUpperCase(); // Default to an empty string if undefined
-                const ddtB = (b.ddtuscita || "").toUpperCase(); // Default to an empty string if undefined
+                const ddtA = (a.codice || "").toUpperCase(); // Default to an empty string if undefined
+                const ddtB = (b.codice || "").toUpperCase(); // Default to an empty string if undefined
                 
                 if (ddtA < ddtB) {
                     return orderDdtuscita === 'asc' ? -1 : 1;
@@ -94,7 +102,7 @@ const GiacenzaList = () => {
                     value={12}
                     type='Sugunna'/>
           )}
-         <Box width="100%" mt="20px" sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+            <Box width="100%" mt="20px" sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
                 {/* ... altro codice ... */}
                 <Box
                     display="contents"
@@ -113,14 +121,14 @@ const GiacenzaList = () => {
 
                     {/* Bottone per ordinare per datauscita */}
                     <CustomButton
-                        title={`Ordina per Data ${orderDatauscita === "asc" ? "↑" : "↓"}`}
+                        title={`Ordina Nome ${orderDatauscita === "asc" ? "↑" : "↓"}`}
                         handleClick={() => toggleSort("datauscita")}
                         backgroundColor="#475be8"
                         color="#fcfcfc"/>
 
                     {/* Bottone per ordinare per ddtuscita */}
                     <CustomButton
-                        title={`Ordina per DDT ${orderDdtuscita === "asc" ? "↑" : "↓"}`}
+                        title={`Ordina Codice ${orderDdtuscita === "asc" ? "↑" : "↓"}`}
                         handleClick={() => toggleSort("ddtuscita")}
                         backgroundColor="#475be8"
                         color="#fcfcfc"/>

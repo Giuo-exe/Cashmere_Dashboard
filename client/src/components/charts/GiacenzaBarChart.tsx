@@ -18,80 +18,86 @@ interface GiacenzaItem {
 
 interface ChartProps {
   title: string;
-  value: number;
+  value?: number;
   giacenza: any;
   type: string;
   context?: string;
 }
 
-const TotalRevenueSeries = (giacenza : any) => {
-    // This will create a series for each giacenza item
-    const seriesData = giacenza.map((item : any) => {
-        return {
-            x: `${item.colorInfo.name} ${item.colorInfo.codice}`,
-            y: item.totaleKg
-        };
-    });
+const TotalRevenueSeries = (labels: Array<string>, series: Array<number>, colors : Array<string>) => {
+  // Create a single series object with an array of data points
+  let result = {
+    name: "Total Revenue",
+    data: series.map((value, index) => ({
+      x: labels[index],
+      y: (value.toFixed(2))
+    }))
+  };
 
-    return [{
-        name: 'Total Kg',
-        data: seriesData
-    }];
+  // Return an array containing just this one series object
+  return [result];
 };
 
-const GiacenzaBarChart = ({ title, value, giacenza, type, context }: ChartProps) => {
-    const TotalRevenueOptions: ApexOptions = {
-        chart: {
-          type: 'bar',
-          toolbar: {
-            show: false,
-          },
-        },
-        colors: giacenza.map((item : any) => item.colorInfo.hex),
-        xaxis: {
-          categories: giacenza.map((item : any) => `${item.colorInfo.name} ${item.colorInfo.codice}`),
-        },
-        plotOptions: {
-          bar: {
-            borderRadius: 4,
-            horizontal: false,
-            columnWidth: '55%',
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        grid: {
-          show: false,
-        },
-        stroke: {
-          colors: ['transparent'],
-          width: 4,
-        },
-        yaxis: {
-          title: {
-            text: 'Kg',
-          },
-        },
-        fill: {
-          opacity: 1,
-        },
-        legend: {
-          position: 'top',
-          horizontalAlign: 'right',
-        },
-        tooltip: {
-          y: {
-            formatter(val: number) {
-              return `${val} Kg`;
-            },
-          },
-        },
-      };
+const GiacenzaBarChart = ({ title, giacenza, type, context }: ChartProps) => {
+  const colors = giacenza.map((item : any) => item.colorInfo.hex)
+  const categories = giacenza.map((item : any) => `${item.colorInfo.name} ${item.colorInfo.codice}`)
+  const series =  giacenza.map((item : any) => item.totalKg)
+  
+  const value = giacenza.reduce((accumulator : number, currentValue : any) => accumulator + currentValue.totalKg, 0);
 
-      const labelSeries = TotalRevenueSeries(giacenza)
-      console.log(TotalRevenueOptions)
-        console.log(labelSeries)
+  const labelSeries = TotalRevenueSeries(categories,series,colors)
+
+  const TotalRevenueOptions: ApexOptions = {
+    chart: {
+      type: 'bar',
+      toolbar: {
+        show: false,
+      },
+    },
+    colors,
+    xaxis: {
+      categories,
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        horizontal: false,
+        columnWidth: '55%',
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    grid: {
+      show: false,
+    },
+    stroke: {
+      colors: ['transparent'],
+      width: 4,
+    },
+    yaxis: {
+      title: {
+        text: 'Kg',
+      },
+    },
+    fill: {
+      opacity: 1,
+    },
+    legend: {
+      position: 'top',
+      horizontalAlign: 'right',
+    },
+    tooltip: {
+      y: {
+        formatter(val: number) {
+          return `${val} Kg`;
+        },
+      },
+    },
+  };
+
+  console.log(TotalRevenueOptions)
+  console.log(labelSeries)
   
   return(
     <>
@@ -115,19 +121,6 @@ const GiacenzaBarChart = ({ title, value, giacenza, type, context }: ChartProps)
                 <Typography fontSize={28} fontWeight={700} color="#11142d">
                   {value} Kg
                 </Typography>
-                {/* <Stack direction="row" alignItems="center" gap={1}>
-                    <ArrowCircleUpRounded
-                        sx={{ fontSize: 25, color: "#475be8" }}
-                    />
-                    <Stack>
-                        <Typography fontSize={15} color="#475be8">
-                            0.8%
-                        </Typography>
-                        <Typography fontSize={12} color="#808191">
-                            Than Last Month
-                        </Typography>
-                    </Stack>
-                </Stack> */}
             </Stack>
 
             <ReactApexChart

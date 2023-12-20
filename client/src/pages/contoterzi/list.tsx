@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Box, Card, CardContent, Typography, Table, TableHead, TableBody, TableRow, TableCell, Select, 
-    CardHeader,MenuItem, IconButton, Checkbox, Stack, Button, Modal, Divider, TextField, ListItem, ListItemIcon, ListItemText, List ,Grid ,Paper } from "@mui/material";
+    CardHeader,MenuItem, IconButton, Checkbox, Stack, Button, Modal, Divider, TextField, ListItem, ListItemIcon, ListItemText, List ,Grid ,Paper, Switch } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useTable, useList } from "@refinedev/core";
 import CustomButton from "components/common/CustomBotton";
@@ -90,6 +90,7 @@ const ContoTerziList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showMergeCheckbox, setShowMergeCheckbox] = useState(false);
     const [totalKg, setTotalKg] = useState(0);
+    const [totalBalle, setTotalBalle] = useState(0);
     const [selectedForMerge, setSelectedForMerge] = useState<string[]>([]);
     const [selectedColorId, setSelectedColorId] = useState<string | null>(null);
     const [selectedForAdditionalProcessing, setSelectedForAdditionalProcessing] = useState<AdditionalProcessingState>({});
@@ -100,16 +101,33 @@ const ContoTerziList = () => {
 
     const lavorataData = GetInfo()
 
+  console.log(lavorataData)
+
+
     
 
-    allContoTerzi.forEach(contoterziItem => {
-        if (contoterziItem.lavorata && contoterziItem.lavorata.length > 1) {
-            contoterziItem.beni = contoterziItem.beni.map((bene : any) => {
-                const matchedLavorataBene = lavorataData.find(l => l._id === bene._id);
-                return matchedLavorataBene ? matchedLavorataBene : bene;
-            });
-        }
-    });
+  allContoTerzi.forEach((contoterziItem) => {
+    if (contoterziItem.lavorata && contoterziItem.lavorata.length > 1) {
+      contoterziItem.beni = contoterziItem.beni.map((bene : any) => {
+        const matchedLavorataBene = lavorataData?.find(
+          (lavorataItem) =>
+            lavorataItem?.lavorata &&
+            lavorataItem.lavorata.beni &&
+            lavorataItem.lavorata.beni.some(
+              (lavorataBene : any) => lavorataBene._id === bene._id
+            )
+        );
+  
+        return matchedLavorataBene ? matchedLavorataBene.lavorata.beni.find(
+          (lavorataBene : any) => lavorataBene._id === bene._id
+        ) : bene;
+      });
+    }
+  });
+
+  
+
+    console.log(allContoTerzi)
 
 
     // Funzioni per il form
@@ -209,7 +227,7 @@ const ContoTerziList = () => {
     // lavorata
 
 
-    const handleAddToLavorata = (bene: any, isMerge = false, totalKg = 0) => {
+    const handleAddToLavorata = (bene: any, isMerge = false, totalKg = 0, balle = 0) => {
         let newItem : NewItemType
     
         if (isMerge) {
@@ -222,6 +240,7 @@ const ContoTerziList = () => {
                 hex: mergedIds[0].colore?.hex || '',
                 kg: totalKg, // Usa il valore fornito dal TextField
                 lotto: "Merged",
+                n: balle,
                 contoterzi: mergedContoterziIds, // Array di ID contoterzi
                 beneIds: selectedForMerge, // Array di ID bene
             };
@@ -248,17 +267,16 @@ const ContoTerziList = () => {
     
 
     const filteredItems = selectedItems
-    .map(itemId => allContoTerzi.flatMap(conto => 
-        conto.beni.map((bene : any) => ({ 
-            ...bene, 
-            contoterzi: conto._id, 
-            ddtId: conto.ddt?.id 
-        }))
-    ).find(bene => bene._id === itemId))
-    .filter(item => item && (!selectedColorId || item.colore?._id === selectedColorId));
+        .map(itemId => allContoTerzi.flatMap(conto => 
+            conto.beni.map((bene : any) => ({ 
+                ...bene, 
+                contoterzi: conto._id, 
+                ddtId: conto.ddt?.id 
+            }))
+        ).find(bene => bene._id === itemId))
+        .filter(item => item && (!selectedColorId || item.colore?._id === selectedColorId));
     console.log(filteredItems)
-
-
+    
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
@@ -372,6 +390,7 @@ const ContoTerziList = () => {
                 autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
                 message="Submission successful"
+                color='green'
             />
 
             <Box mt="20px">
@@ -401,28 +420,60 @@ const ContoTerziList = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {conto.beni.map((bene : any, index : number) => (
+                                        {conto.lavorata && conto.lavorata.length >= 1 ? (
+                                            lavorataData.find((lavorataBene: any) => lavorataBene._id === conto._id)?.beni.map((bene: any, index: number) => (
                                             <TableRow key={index}>
                                                 <TableCell>
-                                                  <Stack direction="row" gap={1}>
-                                                    <Card 
-                                                      sx={{height:"20px", width:"20px", backgroundColor:`${bene.colore?.hex}`}}
+                                                <Stack direction="row" gap={1}>
+                                                    <Card
+                                                    sx={{
+                                                        height: "20px",
+                                                        width: "20px",
+                                                        backgroundColor: `${bene.colore?.hex}`,
+                                                    }}
                                                     />
-                                                    {bene.colore?.name}  
-                                                  </Stack>
+                                                    {bene.colore?.name}
+                                                </Stack>
                                                 </TableCell>
                                                 <TableCell>{bene.lotto?.name}/{bene.colore?.codice}</TableCell>
                                                 <TableCell>{bene.kg}</TableCell>
                                                 <TableCell>{bene.n}</TableCell>
                                                 <TableCell>
-                                                    <Checkbox
-                                                        checked={selectedItems.includes(bene._id.toString())}
-                                                        onChange={() => handleSelect(bene._id.toString())}
-                                                    />
+                                                <Checkbox
+                                                    checked={selectedItems.includes(bene._id.toString())}
+                                                    onChange={() => handleSelect(bene._id.toString())}
+                                                />
                                                 </TableCell>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
+                                            ))
+                                        ) : (
+                                            conto.beni.map((bene: any, index: number) => (
+                                            <TableRow key={index}>
+                                                <TableCell>
+                                                <Stack direction="row" gap={1}>
+                                                    <Card
+                                                    sx={{
+                                                        height: "20px",
+                                                        width: "20px",
+                                                        backgroundColor: `${bene.colore?.hex}`,
+                                                    }}
+                                                    />
+                                                    {bene.colore?.name}
+                                                </Stack>
+                                                </TableCell>
+                                                <TableCell>{bene.lotto?.name}/{bene.colore?.codice}</TableCell>
+                                                <TableCell>{bene.kg}</TableCell>
+                                                <TableCell>{bene.n}</TableCell>
+                                                <TableCell>
+                                                <Checkbox
+                                                    checked={selectedItems.includes(bene._id.toString())}
+                                                    onChange={() => handleSelect(bene._id.toString())}
+                                                />
+                                                </TableCell>
+                                            </TableRow>
+                                            ))
+                                        )}
+                                        </TableBody>
                                 </Table>
                             </CardContent>
                           </Card>
@@ -438,13 +489,23 @@ const ContoTerziList = () => {
           aria-describedby="modal-modal-description">
 
           <Box sx={modalStyle}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
+            <Typography id="modal-modal-title" variant="h4" component="h2">
                 Beni
                 <IconButton onClick={closeModal} color="primary" sx={{float:"right"}}><CloseIcon/>
                 </IconButton>
             </Typography>
-            <Button onClick={() => setShowMergeCheckbox(!showMergeCheckbox)}>Fondi</Button>
-            <Typography>Elementi Selezionati:</Typography>
+            <Box display="flex" alignItems="center"> {/* Align items vertically */}
+                <Typography variant="button" component="h2">
+                    Fondi
+                </Typography>
+                <Switch
+                    name='Fondi'
+                    checked={showMergeCheckbox}
+                    onChange={() => setShowMergeCheckbox(!showMergeCheckbox)}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                />
+            </Box>
+            <Typography sx={{marginTop: 2}}>Elementi Selezionati:</Typography>
             <Box sx={{minHeight: "400"}}>
                 <List >
                     {filteredItems.map((bene) => {
@@ -499,8 +560,10 @@ const ContoTerziList = () => {
                 {showMergeCheckbox && (
                   <Box>
                       <Typography>Totale kg:</Typography>
-                      <TextField value={totalKg} type="number" variant='standard'/>
-                      <IconButton onClick={() => handleAddToLavorata(null, true, totalKg)}>
+                      <TextField value={totalKg} onChange = {(e) => setTotalKg(Number(e.target.value) || 0)} type="number" variant='standard'/>
+                      <TextField value={totalBalle} onChange = {(e) => setTotalBalle(Number(e.target.value) || 0)}type="number" variant='standard' placeholder='Balle' />
+
+                      <IconButton onClick={() => handleAddToLavorata(null, true, totalKg,totalBalle)}>
                          <AddIcon /> 
                       </IconButton>
                   </Box>
@@ -560,7 +623,7 @@ const ContoTerziList = () => {
 
             <form onSubmit={handleSubmit(onSubmit)}>
 
-                <Box sx={{ my: 2 }}>
+                <Box sx={{ my: 2 , marginTop: 1}}>
                     <Grid container>
                         <Grid item xs={12} md={6}>
                             <TextField

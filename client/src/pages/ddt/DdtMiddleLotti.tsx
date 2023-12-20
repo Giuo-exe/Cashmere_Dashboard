@@ -240,7 +240,7 @@ const GetStats = () => {
 }
 
 const GetColours = () => {
-    const { data, isLoading, isError } = useList({ resource: `colori` });
+    const { data, isLoading, isError } = useList({ resource: `colori/condition` });
 
     const allColori = data?.data ?? [];
     

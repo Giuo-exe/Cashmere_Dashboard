@@ -12,7 +12,7 @@ import Button from "@mui/material/Button";
 
 import {FormProps } from "interfaces/common";
 import CustomButton from "./CustomBotton";
-import { Checkbox, FormControlLabel } from "@mui/material";
+import { Autocomplete, Checkbox, FormControlLabel } from "@mui/material";
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const ClienteForm = ({
@@ -143,6 +143,22 @@ const ClienteForm = ({
                                         />
                                     </FormControl>
                                 </Stack>
+                                <FormControl fullWidth>
+                                <Autocomplete
+                                    id="dataOffset"
+                                    options={["30", "60", "90"]}
+                                    defaultValue="30" // Imposta il valore predefinito
+                                    renderInput={(params : any) => (
+                                        <TextField
+                                        {...params}
+                                        label="Paga solitamente in "
+                                        fullWidth
+                                        variant="outlined"
+                                        {...register("dataoffset", { required: false })}
+                                        />
+                                    )}
+                                    />
+                                </FormControl>
                                 <FormControl fullWidth>
                                     <FormControlLabel 
                                         control={<Checkbox {...register("contoterzi")} />}

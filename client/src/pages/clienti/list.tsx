@@ -66,7 +66,8 @@ const ClienteList : React.FC<IResourceComponentsProps> = () => {
                         mb={2}
                         mt={3}
                         display="flex"
-                        width="100%">
+                        width="100%"
+                        >
 
                         <Typography 
                             sx={{float:"left", margin:"15", 
@@ -79,9 +80,9 @@ const ClienteList : React.FC<IResourceComponentsProps> = () => {
 
                         <Box
                             display="contents"
-                            justifyContent="flex-end"
-                            flexWrap="wrap-reverse"
-                            mb={{ xs: "15px", sm: 0 }}>
+                            justifyContent="flex-start"
+                            mb={{ xs: "15px", sm: 0 }}
+                            >
 
                             <TextField
                                 variant="outlined"

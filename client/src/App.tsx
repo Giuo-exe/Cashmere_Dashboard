@@ -84,8 +84,18 @@ function App() {
     login: async ({ credential }: CredentialResponse) => {
       try {
         const profileObj = credential ? parseJwt(credential) : null;
+
+        const allowedEmail = "cashmeredashboard@gmail.com";
         
         if (profileObj) {
+          if (profileObj.email !== allowedEmail) {
+            return {
+              success: false,
+              error: new Error("Access denied. You are not authorized to log in."),
+              redirectTo: "/login"
+            };
+          }
+          
           const response = await fetch("http://localhost:8080/api/v1/users", {
             method: "POST",
             headers: { "Content-Type": 'application/json' },

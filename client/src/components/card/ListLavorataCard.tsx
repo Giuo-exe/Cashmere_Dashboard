@@ -5,7 +5,6 @@ import TrendingFlatIcon from '@mui/icons-material/TrendingFlat';
 
 const ListLavorataCard = (data: any) => {
   const dataArray = Object.values(data);
-  console.log(dataArray)
 
   const getKgDifferenceColor = (originalKg : number, lavorataKg : number) => {
     const difference = lavorataKg - originalKg;
@@ -37,7 +36,6 @@ const ListLavorataCard = (data: any) => {
 
                 return (
                   <React.Fragment key={lavoro._id}>
-                    {/* Check if originalBene is defined before rendering */}
                     {originalBene && (
                       <>
                         <Grid item xs={12} md={5}>
@@ -54,7 +52,7 @@ const ListLavorataCard = (data: any) => {
                           <Typography variant="body2" style={{ color: getKgDifferenceColor(originalBene.kg, lavoro.kg) }}>
                             {lavoro.kg - originalBene.kg} Kg
                           </Typography>
-                          <TrendingFlatIcon /> {/* Custom arrow icon */}
+                          <TrendingFlatIcon />
                         </Grid>
                       </>
                     )}

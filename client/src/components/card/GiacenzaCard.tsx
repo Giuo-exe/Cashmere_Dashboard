@@ -44,7 +44,16 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
       <>
         <StyledPaper elevation={3}>
           <StyledHeader bgcolor={item.colorInfo?.hex || '#ddd'}>
-            <Typography variant="h6">Colore: {item.colorInfo?.name} (Codice: {item.colorInfo?.codice})</Typography>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              width="100%"
+            >
+              <Typography variant="h6">
+                {item.colorInfo?.name}/{item.colorInfo?.codice}
+              </Typography>
+            </Stack>
           </StyledHeader>
           <Grid container spacing={2}>
             {item.lavorata.slice(0, visibleItems).map((lavorata: any, index: number) => {
@@ -59,31 +68,51 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
                 <React.Fragment key={index}>
                   {originalBene && (
                     <>
-                      <Grid item xs={12} md={5}>
+                      <Grid item xs={12} md={5} sx={{margin: 1}}>
                         <Paper sx={{ padding: 2, backgroundColor: '#f0f0f0' }} elevation={2}>
-                          <Stack direction="row" spacing={1}>
-                            <Typography variant="body2">DDT: {contoterziDDT} Kg: {originalBene?.kg} Balle: {originalBene?.n} Colore: {item?.colorInfo?.name}/{item?.colorInfo?.codice}</Typography>
-                            <Card 
-                              sx={{height:"20px", width:"20px", backgroundColor:`${item.colorInfo?.hex}`}}
-                            />
-                          </Stack>
+                        <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="center">
+                          <Box>
+                            <Typography variant="body2">
+                              DDT Entrata: {contoterziDDT}
+                            </Typography>
+                            <Typography variant="body2">
+                              Balle: {originalBene?.n}
+                            </Typography>
+                            <Typography variant="body2">
+                              Colore: {item?.colorInfo?.name}/{item?.colorInfo?.codice}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '1rem', color: 'darkslategray' }}>
+                            Totale Kg: {originalBene?.kg}
+                          </Typography>
+                        </Stack>
                         </Paper>
                       </Grid>
                       <Grid item xs={12} md={1} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                         <Typography variant="body2" style={{ color: getKgDifferenceColor(originalBene.kg, lavorata.kg) }}>
-                          {lavorata.kg - originalBene.kg} Kg
+                          {(lavorata.kg - originalBene.kg).toFixed(2)} Kg
                         </Typography>
                         <TrendingFlatIcon />
                       </Grid>
                     </>
                     )}
-                    <Grid item xs={12} md={5}>
+                    <Grid item xs={12} md={5} sx={{margin: 1}}>
                       <Paper sx={{ padding: 2, backgroundColor: '#f0f0f0' }} elevation={2}>
-                        <Stack direction="row" spacing={1}>
-                          <Typography variant="body2">DTT: {lavorata.ddtuscita} Lavorata: {lavorata.kg} Kg Colore Lavorata: {item?.colorInfo?.name}/{item.colorInfo?.codice}</Typography>
-                          <Card 
-                              sx={{height:"20px", width:"20px", backgroundColor: `${item.colorInfo?.hex}`}}
-                            />
+                        <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="center">
+                          <Box>
+                            <Typography variant="body2">
+                              DDT Uscita: {lavorata.ddtuscita}
+                            </Typography>
+                            <Typography variant="body2">
+                              Balle: {lavorata?.n}
+                            </Typography>
+                            <Typography variant="body2">
+                              Colore: {item?.colorInfo?.name}/{item?.colorInfo?.codice}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '1rem', color: 'darkslategray' }}>
+                            Totale Kg: {lavorata.kg}
+                          </Typography>
                         </Stack>
                       </Paper>
                     </Grid>
@@ -99,6 +128,9 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
                   </Button>
                 )}
               </Box>
+              <Typography variant="subtitle1" sx={{ color: '#373D3F', fontWeight: 'bold' , margin: 1}}>
+                Tot: {item.totalKg.toFixed(2)} Kg
+              </Typography>
         </StyledPaper>
       </>
       );

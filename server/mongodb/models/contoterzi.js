@@ -235,76 +235,207 @@ ContoterziSchema.statics.Aggregazione = async function (id) {
 }
 
 ContoterziSchema.statics.Lavorata = async function (id){
-  const pipeline =
-    [
-      {
-          $lookup: {
-              from: "lavoratas",
-              localField: "lavorata",
-              foreignField: "_id",
-              as: "lavorataDetails"
-          }
-      },
-      {
-          $addFields: {
-              lavorataFlattened: {
-                  $reduce: {
-                      input: "$lavorataDetails",
-                      initialValue: [],
-                      in: { $concatArrays: ["$$value", "$$this.lavorata"] }
-                  }
-              }
-          }
-      },
-      {
-          $addFields: {
-              beni: {
-                  $map: {
-                      input: "$beni",
-                      as: "bene",
-                      in: {
-                          $mergeObjects: [
-                              "$$bene",
-                              {
-                                  kg: {
-                                      $subtract: [
-                                          "$$bene.kg",
-                                          {
-                                              $sum: {
-                                                  $map: {
-                                                      input: {
-                                                          $filter: {
-                                                              input: "$lavorataFlattened",
-                                                              as: "lavorataItem",
-                                                              cond: 
-                                                                { $eq: ["$$lavorataItem.beneId", { $convert: { input: "$$bene._id", to: "string" }}] }
-                                                          }
-                                                      },
-                                                      as: "filteredLavorata",
-                                                      in: "$$filteredLavorata.kg"
-                                                  }
-                                              }
-                                          }
-                                      ]
-                                  }
-                              }
-                          ]
-                      }
-                  }
-              }
-          }
-      },
-      {
-        $project: {
-            beni: 1, // Mostra l'array 'beni' con tutti i suoi campi
-            lavorata: 1, // Mostra l'array 'lavorata'
-            tara: 1, // Mostra il campo 'tara'
-            dataentrata: 1, // Mostra il campo 'dataentrata'
-            ddt: 1, // Mostra il riferimento al 'Ddt'
-            // Altri campi che desideri includere nel risultato finale
+  const pipeline = [
+    {
+        $lookup: {
+            from: "lavoratas",
+            localField: "lavorata",
+            foreignField: "_id",
+            as: "lavorataDetails"
         }
+    },
+    {
+        $lookup: {
+            from: "ddts",
+            localField: "ddt",
+            foreignField: "_id",
+            as: "ddtDetails"
+        }
+    },
+    {
+        $lookup: {
+            from: "colores",
+            localField: "beni.colore",
+            foreignField: "_id",
+            as: "coloreDetails"
+        }
+    },
+    {
+        $lookup: {
+            from: "lottos",
+            localField: "beni.lotto",
+            foreignField: "_id",
+            as: "lottoDetails"
+        }
+    },
+    {
+        $addFields: {
+            ddt: { $arrayElemAt: ["$ddtDetails", 0] },
+            "beni.lotto": { $arrayElemAt: ["$lottoDetails", 0] }
+        }
+    },
+    {
+        $addFields: {
+            lavorataFlattened: {
+                $reduce: {
+                    input: "$lavorataDetails",
+                    initialValue: [],
+                    in: { $concatArrays: ["$$value", "$$this.lavorata"] }
+                }
+            }
+        }
+    },
+    {
+        $addFields: {
+            beni: {
+                $map: {
+                    input: "$beni",
+                    as: "bene",
+                    in: {
+                        $mergeObjects: [
+                            "$$bene",
+                            {
+                                kg: {
+                                    $cond: [
+                                        { $eq: [{ $arrayElemAt: ["$lavorataDetails.checked", 0] }, true] },
+                                        0,
+                                        {
+                                            $subtract: [
+                                                "$$bene.kg",
+                                                {
+                                                    $sum: {
+                                                        $map: {
+                                                            input: {
+                                                                $filter: {
+                                                                    input: "$lavorataFlattened",
+                                                                    as: "lavorataItem",
+                                                                    cond: {
+                                                                        $eq: ["$$lavorataItem.beneId", { $convert: { input: "$$bene._id", to: "string" } }]
+                                                                    }
+                                                                }
+                                                            },
+                                                            as: "filteredLavorata",
+                                                            in: "$$filteredLavorata.kg"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                colore: {
+                                    $first: {
+                                        $filter: {
+                                            input: "$coloreDetails",
+                                            as: "coloreDetail",
+                                            cond: { $eq: ["$$coloreDetail._id", "$$bene.colore"] }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    {
+      $addFields: {
+          beni: {
+              $filter: {
+                  input: "$beni",
+                  as: "bene",
+                  cond: { $gt: ["$$bene.kg", 0] }
+              }
+          }
       }
-  ]
+    },
+    {
+        $match: {
+            "beni.0": { $exists: true } // Assicura che ci sia almeno un 'bene' dopo il filtraggio
+        }
+    },
+    {
+        $project: {
+            beni: 1,
+            lavorata: 1,
+            tara: 1,
+            dataentrata: 1,
+            ddt: 1
+        }
+    }
+]
+
+
+  //   [
+  //     {
+  //         $lookup: {
+  //             from: "lavoratas",
+  //             localField: "lavorata",
+  //             foreignField: "_id",
+  //             as: "lavorataDetails"
+  //         }
+  //     },
+  //     {
+  //         $addFields: {
+  //             lavorataFlattened: {
+  //                 $reduce: {
+  //                     input: "$lavorataDetails",
+  //                     initialValue: [],
+  //                     in: { $concatArrays: ["$$value", "$$this.lavorata"] }
+  //                 }
+  //             }
+  //         }
+  //     },
+  //     {
+  //         $addFields: {
+  //             beni: {
+  //                 $map: {
+  //                     input: "$beni",
+  //                     as: "bene",
+  //                     in: {
+  //                         $mergeObjects: [
+  //                             "$$bene",
+  //                             {
+  //                                 kg: {
+  //                                     $subtract: [
+  //                                         "$$bene.kg",
+  //                                         {
+  //                                             $sum: {
+  //                                                 $map: {
+  //                                                     input: {
+  //                                                         $filter: {
+  //                                                             input: "$lavorataFlattened",
+  //                                                             as: "lavorataItem",
+  //                                                             cond: 
+  //                                                               { $eq: ["$$lavorataItem.beneId", { $convert: { input: "$$bene._id", to: "string" }}] }
+  //                                                         }
+  //                                                     },
+  //                                                     as: "filteredLavorata",
+  //                                                     in: "$$filteredLavorata.kg"
+  //                                                 }
+  //                                             }
+  //                                         }
+  //                                     ]
+  //                                 }
+  //                             }
+  //                         ]
+  //                     }
+  //                 }
+  //             }
+  //         }
+  //     },
+  //     {
+  //       $project: {
+  //           beni: 1, // Mostra l'array 'beni' con tutti i suoi campi
+  //           lavorata: 1, // Mostra l'array 'lavorata'
+  //           tara: 1, // Mostra il campo 'tara'
+  //           dataentrata: 1, // Mostra il campo 'dataentrata'
+  //           ddt: 1, // Mostra il riferimento al 'Ddt'
+  //           // Altri campi che desideri includere nel risultato finale
+  //       }
+  //     }
+  // ]
 
   if (id) {
     pipeline.unshift({

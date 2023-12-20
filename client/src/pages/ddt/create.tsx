@@ -31,8 +31,6 @@ const DdtCreate = () => {
     const [selectedClienteAddress, setSelectedAddress] = useState("");
     const [taraNumber, setTaraNumber] = useState(1);
 
-
-
     console.log(cart)
 
     const ddt = {
@@ -57,6 +55,7 @@ const DdtCreate = () => {
         if (newValue) {
             const foundCliente = allClienti.find((cliente) => cliente.name === newValue);
             if (foundCliente) {
+                console.log(foundCliente)
                 const { cap, citta, indirizzo, _id } = foundCliente;
                 setSelectedClienteID(_id);
                 setSelectedAddress(`${cap}, ${citta} - ${indirizzo}`);
