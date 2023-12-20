@@ -84,7 +84,7 @@ const ContoTerziList = () => {
 
     const allContoTerzi = data?.data ?? [];
 
-    const currentData = sorters.find(item => item.field === 'dataentrata')?.order;
+   
 
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -129,7 +129,8 @@ const ContoTerziList = () => {
 
     console.log(allContoTerzi)
 
-
+    const currentData = sorters.find(item => item.field === 'dataentrata')?.order;
+    console.log(currentData)
     // Funzioni per il form
 
     const toggleSort = (field : any) => {
