@@ -23,6 +23,7 @@ const ListLavorata = () => {
     } = useTable();
 
     const allLavorata = data?.data ?? [];
+    console.log(allLavorata)
 
 
     const currentData = sorters.find((item) => (item.field === "datauscita"))?.order;
@@ -170,11 +171,11 @@ const ListLavorata = () => {
                     defaultValue={10}
                     onChange={(e) =>
                         setPageSize(
-                            e.target.value ? Number(e.target.value) : 9,
+                            e.target.value ? Number(e.target.value) : 10,
                         )
                     }
                 >
-                {[9, 18, 27, 36, 45].map((size) => (
+                {[10, 20, 30, 40, 50].map((size) => (
                     <MenuItem key={size} value={size}>
                         Show {size}
                     </MenuItem>

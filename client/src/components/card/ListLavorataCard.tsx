@@ -50,7 +50,7 @@ const ListLavorataCard = (data: any) => {
                         </Grid>
                         <Grid item xs={12} md={1} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                           <Typography variant="body2" style={{ color: getKgDifferenceColor(originalBene.kg, lavoro.kg) }}>
-                            {lavoro.kg - originalBene.kg} Kg
+                            {(lavoro.kg - originalBene.kg).toFixed(2)} Kg
                           </Typography>
                           <TrendingFlatIcon />
                         </Grid>

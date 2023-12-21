@@ -12,6 +12,7 @@ import LottoCardMiddle from "components/card/LottoCardMiddle";
 import { useCart } from "utils/CartContext";
 import React, { useEffect } from 'react';
 import DdtContoTerziCard from "components/card/DdtContoTerziCard";
+import VenditaCard from "components/card/VenditaCard";
 
 interface DdtMiddleLottiProps {
     type: string;
@@ -39,6 +40,8 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
 
     const LottiStats = GetStats();
     const Colori = GetColours();
+    const Giacenza = GetGiacenza();
+
     console.log(LottiStats)
     
     const [id, setId] = useState(0);
@@ -126,10 +129,10 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
                             }}
                             />
                             <Button
-                            variant="contained"
-                            onClick={() => toggleSort("data")}
-                            sx={{ backgroundColor: "#475be8", color: "#fcfcfc" }}
-                            >
+                                variant="contained"
+                                onClick={() => toggleSort("data")}
+                                sx={{ backgroundColor: "#475be8", color: "#fcfcfc" }}
+                                >
                             Ordina per Data {currentData === "asc" ? "↑" : "↓"}
                             </Button>
                         </Box>
@@ -143,9 +146,6 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
                             const statistica = LottiStats.find((stas) => stas._id === lotto._id);
                             const lottoLavorata = lotto.lavorata ? lotto.lavorata : 0;
 
-                            if (statistica?.lavorata.length === 0 && vendita) {
-                            return null;
-                            }
 
                             const commonProps = {
                                 key: lotto._id,
@@ -159,28 +159,19 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
                                 colori: Colori
                             };
 
-                            if (statistica && vendita) {
+                            if (vendita) {
+                            // Invoke VenditaCard when vendita is true
                             return (
-                                <LottoCardMiddle
-                                {...commonProps}
-                                venditacheck={true}
-                                stats={statistica}
-                                />
-                            );
-                            } else if (statistica && !vendita) {
-                            return (
-                                <DdtContoTerziCard
-                                {...commonProps}
-                                contoterzi={true}
-                                stats={statistica}
-
+                                <VenditaCard
+                                    stats = {Giacenza}
+                                    lots = {allLotti}
                                 />
                             );
                             } else {
+                            // Invoke LottoCardMiddle for non-vendita scenarios
                             return (
                                 <LottoCardMiddle
                                 {...commonProps}
-                                contoterzi={false}
                                 />
                             );
                             }
@@ -245,6 +236,14 @@ const GetColours = () => {
     const allColori = data?.data ?? [];
     
     return allColori;
+}
+
+const GetGiacenza = () => {
+    const { data, isLoading, isError } = useList({ resource: `lavorata/giacenza` });
+
+    const allGiacenza = data?.data ?? [];
+    
+    return allGiacenza;
 }
 
 
