@@ -1,5 +1,5 @@
 import { useTable } from '@refinedev/core';
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import {Box, MenuItem, Select, Stack, TextField, Typography} from "@mui/material"
 import CustomButton from 'components/common/CustomBotton';
@@ -25,12 +25,24 @@ const ListLavorata = () => {
     const allLavorata = data?.data ?? [];
 
 
-    const currentData = sorters.find((item) => (item.field === "data"))?.order;
+    const currentData = sorters.find((item) => (item.field === "datauscita"))?.order;
+
+    const [initialSortSet, setInitialSortSet] = useState(false);
+
+    useEffect(() => {
+        if (!initialSortSet) {
+            // Imposta l'ordinamento iniziale solo se non è stato già impostato
+            setSorters([{ field: 'datauscita', order: 'desc' }]);
+            setInitialSortSet(true); // Aggiorna la variabile di stato
+        }
+    }, [setSorters, initialSortSet]);
 
 
     const toggleSort = (field: string) => {
-        setSorters([{ field, order: currentData === "asc" ? "desc" : "asc" }]);
+        setSorters([{ field, order: currentData === "desc" ? "asc" : "desc" }]);
     };
+
+        // Imposta l'ordinamento iniziale a decrescente per il campo 'datauscita'
 
     const currentFilterValues = useMemo(() => {
         const logicalFilters = filters.flatMap((item) =>
@@ -38,11 +50,11 @@ const ListLavorata = () => {
         );
 
         return {
-            name:
-                logicalFilters.find((item) => item.field === "name")?.value ||
+            ddt:
+                logicalFilters.find((item) => item.field === "ddtuscita")?.value ||
                 "",
             data:
-                logicalFilters.find((item) => item.field === "data")
+                logicalFilters.find((item) => item.field === "datauscita")
                     ?.value || "",
         };
     }, [filters]);
@@ -85,7 +97,7 @@ const ListLavorata = () => {
                                 variant="outlined"
                                 color="info"
                                 placeholder="Search by title"
-                                value={currentFilterValues.name}
+                                value={currentFilterValues.ddt}
                                 onChange={(e) => {
                                     setFilters([
                                         {
@@ -103,7 +115,7 @@ const ListLavorata = () => {
                                 title={`Ordina per Data ${
                                     currentData === "asc" ? "↑" : "↓"
                                 }`}
-                                handleClick={() => toggleSort("data")}
+                                handleClick={() => toggleSort("datauscita")}
                                 backgroundColor="#475be8"
                                 color="#fcfcfc"/>
                         </Box>
