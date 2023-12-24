@@ -57,7 +57,7 @@ const VenditaCardApp = ({ item, lots }: { item: any; lots: any[] }) => {
     const [balesInput, setBalesInput] = useState('');
     const [remainingKg, setRemainingKg] = useState<number>(item?.totalKg || 0);
     const [remainingBales, setRemainingBales] = useState<number>(item?.n || 0);
-    const [selectedLot, setSelectedLot] = useState(null);
+    const [selectedLot, setSelectedLot] = useState("");
 
     const lottiName = lots.map((item : any) => item.name)
     console.log(lots)

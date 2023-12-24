@@ -352,6 +352,22 @@ const ContoTerziList = () => {
         setSnackbarOpen(false);
     };
 
+    let FilteredContoterzi = allContoTerzi.map((conto, index) => {
+        // Check if there's an item in lavorataData with an _id matching the current conto's _id
+        let isPresent = lavorataData.some(lavorata => lavorata._id === conto?._id);
+        
+        if (!isPresent) {
+            return null; // Skip this item by returning null
+        }
+    
+        // If a matching item is found, you might want to do something with it here
+        // For now, it just returns the conto object as an example
+        return conto;
+    });
+    
+    // Filter out the null values if you don't want them in the final array
+    FilteredContoterzi = FilteredContoterzi.filter(item => item !== null);
+
 
 
 
@@ -395,11 +411,7 @@ const ContoTerziList = () => {
             />
 
             <Box mt="20px">
-                {allContoTerzi.map((conto, index) => {
-
-                    if (!lavorataData.some(lavorata => lavorata._id === conto._id)) {
-                        return null; // Skip rendering this item
-                    }
+                {FilteredContoterzi.map((conto, index) => {
 
                     const dataFormat : string = new Date(conto?.dataentrata).toLocaleDateString()
 
@@ -673,7 +685,7 @@ const ContoTerziList = () => {
             </Box>
         </Modal>
 
-        {allContoTerzi.length > 0 && (
+        {FilteredContoterzi?.length > 0 && (
                 <Box display="flex" gap={2} mt={3} flexWrap="wrap">
                     <CustomButton
                         title="Previous"

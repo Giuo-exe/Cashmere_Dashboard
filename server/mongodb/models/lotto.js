@@ -1037,6 +1037,133 @@ LottoSchema.statics.getTotals = async function () {
     return risultato; 
 }
 
+
+LottoSchema.statics.getStatss = async function (id) {
+  const pipeline = 
+  [{
+    $lookup: {
+      from: "contoterzis",
+      localField: "contoterzi",
+      foreignField: "_id",
+      as: "contoterziData",
+    },
+  },
+  {
+    $lookup: {
+      from: "fatturas",
+      localField: "allFatture",
+      foreignField: "_id",
+      as: "fattureData",
+    },
+  },
+  {
+    $lookup: {
+      from: "ddts",
+      localField: "fattureData.allDdt",
+      foreignField: "_id",
+      as: "ddtData",
+    },
+  },
+  {
+  $addFields: {
+  cashmere: {
+    $map: {
+      input: "$cashmere",
+      as: "cashItem",
+      in: {
+        hex: "$$cashItem.hex",
+        colore: "$$cashItem.colore",
+        kg: {
+          $reduce: {
+            input: "$contoterziData",
+            initialValue: "$$cashItem.kg",
+            in: {
+              $subtract: [
+                "$$value",
+                { // Calculate the total kg to subtract without considering color
+                  $sum: {
+                    $map: {
+                      input: "$$this.beni",
+                      as: "beniItem",
+                      in: "$$beniItem.kg"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        n: {
+          $reduce: {
+            input: "$contoterziData",
+            initialValue: "$$cashItem.n",
+            in: {
+              $subtract: [
+                "$$value",
+                { // Calculate the total n to subtract without considering color
+                  $sum: {
+                    $map: {
+                      input: "$$this.beni",
+                      as: "beniItem",
+                      in: "$$beniItem.n"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  },
+  },
+  
+  // Altre fasi di trasformazione se necessario
+  // {
+  //   $project: {
+  //     contoterziData: 0, // Ometti il campo contoterziData intero se non necessario
+  // altri_campi_temporanei: 0 // Ometti altri campi temporanei se ce ne sono
+  //   },
+  // }
+  // Fase di group se necessario
+  {
+    $group: {
+      _id: "$_id",
+      cashmere: {
+        $first: "$cashmere",
+      },
+      //dalavoraretemp: { $first: "$dalavoraretemp" },
+      dalavorare: {
+        $first: "$dalavorare",
+      },
+      venduti: {
+        $first: "$venduti",
+      },
+      //lavoratatemp: { $first: "$lavoratatemp" },
+      lavorata: {
+        $first: "$lavorata",
+      },
+      //lavorataGroupedByColor: { $first: "$lavorataGroupedByColor" },
+      unchecked: {
+        $first: "$unchecked",
+      },
+      // Aggiungi altri campi che vuoi includere nel gruppo
+    },
+  },
+  ]
+
+  if (id) {
+    pipeline.unshift({
+      $match: { _id: new mongoose.Types.ObjectId(id) },
+    });
+  }
+
+  const risultato = await this.aggregate(pipeline).exec();
+
+  return risultato; 
+}
+
 const lottoModel = mongoose.model("Lotto", LottoSchema);
 
 export default lottoModel
