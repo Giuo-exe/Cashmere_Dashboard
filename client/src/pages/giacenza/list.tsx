@@ -88,7 +88,13 @@ const GiacenzaList = () => {
 
 
     return (
-        <>
+        <>  
+            <Typography variant='h4' 
+                fontSize={40} 
+                fontWeight={700} 
+                gutterBottom>
+                Giacenza
+            </Typography>
           {isLoading ? (
                 // Visualizza lo skeleton durante il caricamento
                 <Box>

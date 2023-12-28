@@ -24,24 +24,23 @@ interface ColoreProps {
 }
 
 const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata, stats, contoterzi, venditacheck, colori ,vendita, ids} : lottoCardProps) => {
-    if(venditacheck) {
+    
+    cashmere = contoterzi ? stats.cashmere : cashmere
+    console.log(stats.cashmere)
+    
+  
+    // const initialRemainingQuantities: number[] = stats.length > 0 ? 
+    // [calculateDifference(stats)] :  // If contoterzi is true
+    // cashmere.map(cash => cash.kg);  //
 
-      cashmere = stats.lavorata.map((item: any) => ({
-        ...item, // operatore spread per copiare tutte le proprietà esistenti
-        scarto: item.scarto.toFixed(2),
-        kg: +((item.kg - item.scarto) || 0).toFixed(2) // Sottrai scarto da kg e limita a due cifre decimali
-    }));
-      
-    }else{
-      cashmere = contoterzi ? stats.cashmere : cashmere
-      console.log(cashmere)
-    }
+    const initialRemainingQuantities = [calculateDifference(stats)]
 
+    console.log(initialRemainingQuantities)
 
     const {addToCart, removeFromCart, cart} = useCart();
 
     const [inputValues, setInputValues] =  useState(cashmere.map(() => ''));
-    const [remainingQuantities, setRemainingQuantities] =  useState(cashmere.map((cash) => cash.kg)); // Stato per la quantità rimasta
+    const [remainingQuantities, setRemainingQuantities] =  useState(initialRemainingQuantities); // Stato per la quantità rimasta
     const [balleInputValues, setBalleInputValues] = useState(cashmere.map(() => ''));
     const [remainingBalle, setRemainingBalle] = useState(cashmere.map((cash) => cash.n));
     const [selectedColor, setSelectedColor] = useState<ColoreProps>();
@@ -137,7 +136,7 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
       <Card 
           sx={{
           width: "45%",
-          height: "auto",
+          height: "400px",
           borderRadius: "12px",
           transition: "transform 0.2s",
           "&:hover": {
@@ -145,7 +144,7 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
           },
         }}>
           <CardContent>
-              <Typography gutterBottom variant="h5" component="div">
+              <Typography gutterBottom variant="h4" component="div">
                   {name}
               </Typography>
 
@@ -162,14 +161,7 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
                           <Grid container alignItems="center" justifyContent="flex-start"> {/* Contenitore della griglia per allineamento */}
                               <Grid item>
                                   <Stack alignItems="center" direction="row" gap={1} >
-                                      <Typography gutterBottom variant='body2' fontWeight="bold">Cashmere {remainingQuantities[index]} Kg </Typography>
-                                      <Card color={`#${hex}`} 
-                                          sx={{maxHeight:"20px", 
-                                              maxWidth:"20px", 
-                                              minHeight:"20px", 
-                                              minWidth:"20px", 
-                                              backgroundColor:`${hex}`}}/>
-                                      <Typography gutterBottom variant='body2'>{cash.colore}</Typography>
+                                      <Typography gutterBottom variant='body1' fontWeight="bold">Cashmere {remainingQuantities[index]} Kg </Typography>
                                       <Typography gutterBottom variant='body2' fontWeight="bold">Balle {remainingBalle[index]} </Typography>
                                   </Stack>
                               </Grid>
@@ -246,6 +238,23 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
           </CardContent>
       </Card>
   )
+}
+
+function calculateDifference(stats : any) {
+  // Safely access stats.cashmere.kg, defaulting to 0 if not available
+  const cashmereKg = stats.cashmere?.kg || 0;
+
+  // Calculate the total kg in stats.daLavorare, defaulting to 0 if the array is empty
+  const totalDaLavorareKg = stats.daLavorare?.reduce((total : any, item : any) => {
+      // Ensure each item's kg is a number, defaulting to 0 if not
+      const kg = item.kg || 0;
+      return total + kg;
+  }, 0) || 0;
+
+  console.log(cashmereKg,totalDaLavorareKg)
+
+  // Return the difference
+  return cashmereKg - totalDaLavorareKg;
 }
 
 export default DdtContoTerziCard

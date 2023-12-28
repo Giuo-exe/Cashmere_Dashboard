@@ -4,8 +4,8 @@ import React, { createContext, useContext, useState } from 'react';
 // Definire il tipo dell'elemento del carrello
 interface CartItem {
   idcart: number; 
-  lottoname: string;
-  lotto: string;
+  lottoname?: string;
+  lotto?: string;
   colorename?: string;
   colore?: string;
   hex: string | undefined;

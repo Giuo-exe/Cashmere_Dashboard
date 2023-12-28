@@ -147,10 +147,26 @@ const getLavorataGiacenza = async (req,res) => {
     }
 }
 
+const getTotalKgDate = async(req,res) => {
+    const {start , finish} = req.query
+
+
+    try{
+
+        const result = await Lavorata.calculateTotalKg(start, finish)
+        // Send the HTTP response with the result
+        res.status(200).json(result);
+    
+      } catch (err) {
+        // Handle errors and send an error response
+        res.status(500).json({ error: "Error retrieving Giacenza" });
+      }
+}
 
 export {
     createLavorata,
     getAllLavorata,
     getGiacenza,
-    getLavorataGiacenza
+    getLavorataGiacenza,
+    getTotalKgDate
 }

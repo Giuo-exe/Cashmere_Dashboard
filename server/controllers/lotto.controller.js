@@ -278,7 +278,22 @@ const LottoSingleDifferencesContoterzi = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-const contoterziLotto = async (req,res) => {}
+
+const LottoTotalKgDate = async (req, res) => {
+    const {id} = req.params
+    const {start , finish} = req.query
+
+
+    try{
+        const result = await Lotto.calculateTotalKg(start,finish)
+        
+        // Send the HTTP response with the result
+        res.status(200).json(result);
+    }catch(error){
+        res.status(500).json({ message: error.message })
+    }
+}
+
 
 export {
     getTotals,
@@ -292,4 +307,5 @@ export {
     getLottoType,
     LottoSingleDifferencesContoterzi,
     AddFattura,
+    LottoTotalKgDate
 }

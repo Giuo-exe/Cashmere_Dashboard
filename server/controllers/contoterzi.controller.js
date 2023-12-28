@@ -251,7 +251,20 @@ const lavorataContoTerzi = async (req, res) => {
   }
 };
 
+const getContoterziKgDate = async (req,res) => {
+    const {id} = req.params
+    const {start , finish} = req.query
 
+    try{
+        const result = await ContoTerzi.calculateTotalKg(start,finish)
+        
+        // Send the HTTP response with the result
+        res.status(200).json(result);
+    }catch(error){
+        res.status(500).json({ message: error.message })
+    }
+
+}
 
 const deleteContoTerzi = async (req,res) => {
 
@@ -272,5 +285,6 @@ export {
     lavorataContoTerzi,
     RemoveLavorata,
     updateLavorataCheckedStatus,
-    getContoterziLavorata
+    getContoterziLavorata,
+    getContoterziKgDate
   }

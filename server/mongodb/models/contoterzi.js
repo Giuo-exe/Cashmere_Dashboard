@@ -448,6 +448,44 @@ ContoterziSchema.statics.Lavorata = async function (id){
   return risultato;
 }
 
+ContoterziSchema.statics.calculateTotalKg = async function (startDate, endDate) {
+  const pipeline = [
+    // Step 1: Optionally filter documents by date range if startDate and endDate are provided
+    ...(startDate && endDate ? [{
+      $match: {
+        "dataentrata": { $gte: new Date(startDate), $lte: new Date(endDate) }
+      }
+    }] : []),
+
+    // Step 2: Unwind the 'beni' array to process each item
+    { $unwind: "$beni" },
+
+    // Step 3: Group documents and sum the kg
+    {
+      $group: {
+        _id: {
+          year: startDate || endDate ? { $year: "$datauscita" } : null, // Apply year grouping only if a date is provided
+          month: startDate || endDate ? { $month: "$datauscita" } : null // Apply month grouping only if a date is provided
+        }, // Grouping at the root level, change if needed
+        totalKg: { $sum: "$beni.kg" }
+      }
+    },
+
+    // Step 4: Optionally format the output
+    {
+      $project: {
+        _id: 0,
+        year: "$_id.year",
+        month: "$_id.month",
+        totalKg: 1
+      }
+    }
+  ];
+
+  const result = await this.aggregate(pipeline).exec();
+  return result;
+}
+
 const contoterziModel = mongoose.model("ContoTerzi", ContoterziSchema);
 
 export default contoterziModel

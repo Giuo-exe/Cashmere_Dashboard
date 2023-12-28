@@ -1,7 +1,7 @@
 import express from 'express';
 
 import{
-    createContoTerzi,getAllContoTerzi,getContoTerziDetail,getContoterziLavorata,deleteContoTerzi,updateContoTerzi,RemoveLavorata ,updateLavorataCheckedStatus,getSingleContoterziDifference,getContoterziDifference, lavorataContoTerzi
+    createContoTerzi,getAllContoTerzi,getContoTerziDetail,getContoterziLavorata,deleteContoTerzi,updateContoTerzi,RemoveLavorata ,updateLavorataCheckedStatus,getSingleContoterziDifference,getContoterziDifference, lavorataContoTerzi, getContoterziKgDate
 } from "../controllers/contoterzi.controller.js"
 
 const router = express.Router();
@@ -13,6 +13,8 @@ router.route("/checked/:id").patch(updateLavorataCheckedStatus)
 router.route("/removelavorata/:id").patch(RemoveLavorata)
 router.route("/lavorata/:id").patch(lavorataContoTerzi);
 router.route("/lavorata").get(getContoterziLavorata);
+router.route("/tot/").get(getContoterziKgDate);
+
 
 router.route("/").get(getAllContoTerzi);
 router.route("/:id").get(getSingleContoterziDifference);

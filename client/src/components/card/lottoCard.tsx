@@ -18,12 +18,15 @@ const LottoCard = ({_id, navigazione, name, data, cashmere, contoterzi, stats} :
   if(contoterzi){
     
 // Calcolo per cashmere.
+  const kgDalavorare = stats.dalavorare.reduce((total: number, dalavorareItem: any) => total + dalavorareItem.kg, 0);
+    
+
     const kgCashmere = stats.cashmere.reduce((total: number, cashmereItem: any) => total + cashmereItem.kg, 0);
-    values[0] = kgCashmere;
+
+    
 
     // Calcolo per dalavorare.
-    const kgDalavorare = stats.dalavorare.reduce((total: number, dalavorareItem: any) => total + dalavorareItem.kg, 0);
-    values[1] = kgDalavorare;
+    
 
     // Calcolo per lavorata.
     let kgLavorata = stats.lavorata.reduce((total: number, lavorataItem: any) => total + lavorataItem.kg, 0);
@@ -40,11 +43,14 @@ const LottoCard = ({_id, navigazione, name, data, cashmere, contoterzi, stats} :
 
     // Sottrai lo scarto da lavorata e aggiungi allo scarto, arrotondando a due cifre decimali.
     kgLavorata = +(kgLavorata - scartoTotal).toFixed(2);
+    values[1] = kgDalavorare;
+    values[0] = kgCashmere - kgDalavorare;
     values[2] = kgLavorata;
     values[3] = +venduta.toFixed(2);
     values[4] = +scartoTotal.toFixed(2);
-
-    ammount = +(kgCashmere + kgDalavorare + kgLavorata + venduta + scartoTotal).toFixed(2);
+    
+    console.log(kgCashmere )
+    ammount = +(kgCashmere ).toFixed(2);
 
   }else{
     let kgCashmere = Array.isArray(cashmere) ? 
@@ -54,6 +60,8 @@ const LottoCard = ({_id, navigazione, name, data, cashmere, contoterzi, stats} :
     values[0] = kgCashmere
     ammount = kgCashmere
   }
+
+  console.log(values)
  
 
   const dataFormat : string = new Date(data).toLocaleDateString()

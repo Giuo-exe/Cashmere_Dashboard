@@ -230,11 +230,7 @@ const getDdtDetail = async (req,res) => {
         res.status(404).json({ message : "Ddt non trovato" })
     }
 };
-
-
 const updateDdt = async (req,res) => {}; 
-
-
     
 const deleteDdt = async (req, res) => {
     const { id } = req.params;
@@ -256,6 +252,21 @@ const deleteDdt = async (req, res) => {
     }
 };
 
+const DdtTotalKgVendutaDate = async (req, res) => {
+    const {id} = req.params
+    const {start , finish} = req.query
+
+
+    try{
+        const result = await Ddt.calculateTotalKgVendita(start,finish)
+        
+        // Send the HTTP response with the result
+        res.status(200).json(result);
+    }catch(error){
+        res.status(500).json({ message: error.message })
+    }
+}
+
 
 export {
     getAllddt,
@@ -264,7 +275,8 @@ export {
     deleteDdt,
     createDdt,
     getVenditaddt, 
-    getAllDdteSelected
+    getAllDdteSelected,
+    DdtTotalKgVendutaDate
 }
 
 

@@ -107,7 +107,47 @@ LavorataSchema.statics.Giacenza = async function() {
 
 }
 
+LavorataSchema.statics.calculateTotalKg = async function (startDate, endDate) {
+  const pipeline = [
+    // Step 1: Unwind the 'lavorata' array
+    { $unwind: "$lavorata" },
+  
+  // Step 2: Optionally filter documents by date range if startDate and endDate are provided
+    ...(startDate && endDate ? [{
+      $match: {
+        "datauscita": { $gte: new Date(startDate), $lte: new Date(endDate) }
+      }
+    }] : []),
+
+    // Step 3: Group documents by the desired timeframe and sum the kg
+    {
+      $group: {
+        _id: {
+          year: startDate || endDate ? { $year: "$datauscita" } : null, // Apply year grouping only if a date is provided
+          month: startDate || endDate ? { $month: "$datauscita" } : null // Apply month grouping only if a date is provided
+        },
+        totalKg: { $sum: "$lavorata.kg" }
+      }
+    },
+
+    // Step 4: Optionally format the output
+    {
+      $project: {
+        _id: 0,
+        year: "$_id.year",
+        month: "$_id.month",
+        totalKg: 1
+      }
+    }
+  ];
+
+  const result = await this.aggregate(pipeline).exec();
+  return result;
+
+}
+
+
 const lavorataModel = mongoose.model("Lavorata", LavorataSchema);
 
 
-export default lavorataModel
+export default lavorataModel;

@@ -416,7 +416,7 @@ const ContoTerziList = () => {
                     const dataFormat : string = new Date(conto?.dataentrata).toLocaleDateString()
 
                         return (
-                          <Card key={conto._id} sx={{marginBottom: 2 }}>
+                          <Card key={conto?._id} sx={{marginBottom: 2 }}>
                             <CardHeader
                                 sx={{
                                 bgcolor: color[index % color.length],
@@ -438,7 +438,7 @@ const ContoTerziList = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {conto.lavorata && conto.lavorata.length >= 1 ? (
+                                        {conto?.lavorata && conto?.lavorata.length >= 1 ? (
                                             lavorataData.find((lavorataBene: any) => lavorataBene._id === conto._id)?.beni.map((bene: any, index: number) => (
                                             <TableRow key={index}>
                                                 <TableCell>
@@ -465,7 +465,7 @@ const ContoTerziList = () => {
                                             </TableRow>
                                             ))
                                         ) : (
-                                            conto.beni.map((bene: any, index: number) => (
+                                            conto?.beni.map((bene: any, index: number) => (
                                             <TableRow key={index}>
                                                 <TableCell>
                                                 <Stack direction="row" gap={1}>

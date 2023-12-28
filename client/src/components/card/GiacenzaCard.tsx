@@ -42,7 +42,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   
     return (
       <>
-        <StyledPaper elevation={3}>
+        <StyledPaper elevation={3} sx={{backgroundColor: '#f0f0f0'}}>
           <StyledHeader bgcolor={item.colorInfo?.hex || '#ddd'}>
             <Stack
               direction="row"
@@ -55,7 +55,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
               </Typography>
             </Stack>
           </StyledHeader>
-          <Grid container spacing={2}>
+          <Grid container spacing={1} >
             {item.lavorata.slice(0, visibleItems).map((lavorata: any, index: number) => {
               const originalBene = lavorata?.contoterzi?.beni?.find((bene: any) => bene._id === lavorata.beneId);
               const contoterziDDT = originalBene ? lavorata?.contoterzi?.ddt?.id : null;
@@ -68,8 +68,8 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
                 <React.Fragment key={index}>
                   {originalBene && (
                     <>
-                      <Grid item xs={12} md={5} sx={{margin: 1}}>
-                        <Paper sx={{ padding: 2, backgroundColor: '#f0f0f0' }} elevation={2}>
+                      <Grid item xs={12} md={5} sx={{margin: 1 }}>
+                        <Paper sx={{ padding: 2, backgroundColor: '#fffff' }} square>
                         <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="center">
                           <Box>
                             <Typography variant="body2">
@@ -97,7 +97,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
                     </>
                     )}
                     <Grid item xs={12} md={5} sx={{margin: 1}}>
-                      <Paper sx={{ padding: 2, backgroundColor: '#f0f0f0' }} elevation={2}>
+                      <Paper sx={{ padding: 2, backgroundColor: '#fffff' }} square>
                         <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="center">
                           <Box>
                             <Typography variant="body2">

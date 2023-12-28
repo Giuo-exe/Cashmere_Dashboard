@@ -110,72 +110,82 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
                     <Stack direction="column" width="100%" gap={3}>
                         <Box gap={3} mb={2} display="flex" width="100%">
                         <Typography sx={{ float: "left", marginLeft: "15px" }} variant="h5" fontSize={44} fontWeight={700} color="#11142d">
-                            {!allLotti.length ? "Non ci sono Lotti" : "Lotti"}
+                            {type === "vendita" ? "Magazzino" : (!allLotti.length ? "Non ci sono Lotti" : "Lotti")} 
                         </Typography>
-                        <Box display="flex" justifyContent="flex-end" flexWrap="wrap-reverse" mb={{ xs: 2, sm: 0 }} sx={{ marginLeft: "auto" }} gap={2}>
-                            <TextField
-                            variant="outlined"
-                            color="primary"
-                            placeholder="Search by title"
-                            value={currentFilterValues.name}
-                            onChange={(e) => {
-                                setFilters([
-                                {
-                                    field: "name",
-                                    operator: "contains",
-                                    value: e.currentTarget.value ? e.currentTarget.value : undefined,
-                                },
-                                ]);
-                            }}
-                            />
-                            <Button
-                                variant="contained"
-                                onClick={() => toggleSort("data")}
-                                sx={{ backgroundColor: "#475be8", color: "#fcfcfc" }}
-                                >
-                            Ordina per Data {currentData === "asc" ? "↑" : "↓"}
-                            </Button>
-                        </Box>
+
+                        {type === "vendita" ? (
+                            <>
+                            </>
+                        ) : (
+                            <Box display="flex" justifyContent="flex-end" flexWrap="wrap-reverse" mb={{ xs: 2, sm: 0 }} sx={{ marginLeft: "auto" }} gap={2}>
+                                <TextField
+                                variant="outlined"
+                                color="primary"
+                                placeholder="Search by title"
+                                value={currentFilterValues.name}
+                                onChange={(e) => {
+                                    setFilters([
+                                    {
+                                        field: "name",
+                                        operator: "contains",
+                                        value: e.currentTarget.value ? e.currentTarget.value : undefined,
+                                    },
+                                    ]);
+                                }}
+                                />
+
+
+                                <Button
+                                    variant="contained"
+                                    onClick={() => toggleSort("data")}
+                                    sx={{ backgroundColor: "#475be8", color: "#fcfcfc" }}
+                                    >
+                                Ordina per Data {currentData === "asc" ? "↑" : "↓"}
+                                </Button>
+                            </Box>
+                        )}
                         </Box>
                     </Stack>
                     </Box>
 
                     <Box mt="20px" sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-                        {allLotti?.map((lotto) => {
-                            const vendita = type === "vendita";
-                            const statistica = LottiStats.find((stas) => stas._id === lotto._id);
-                            const lottoLavorata = lotto.lavorata ? lotto.lavorata : 0;
-
-
-                            const commonProps = {
-                                key: lotto._id,
-                                lottoid: lotto._id,
-                                navigazione: `./show/${lotto._id}`,
-                                name: lotto.name,
-                                data: lotto.data,
-                                cashmere: lotto.cashmere,
-                                vendita: vendita,
-                                lavorata: lottoLavorata,
-                                colori: Colori
-                            };
-
-                            if (vendita) {
-                            // Invoke VenditaCard when vendita is true
-                            return (
+                        {type === "vendita" ? (
+                                // If 'type' is "vendita", render VenditaCard directly
                                 <VenditaCard
-                                    stats = {Giacenza}
-                                    lots = {allLotti}
+                                    stats={Giacenza} // Ensure you define and pass the necessary props
+                                    lots={allLotti}
                                 />
-                            );
-                            } else {
-                            // Invoke LottoCardMiddle for non-vendita scenarios
-                            return (
-                                <LottoCardMiddle
-                                {...commonProps}
-                                />
-                            );
-                            }
-                        })}
+                            ) : (
+                                // Otherwise, map through allLotti as before
+                                allLotti?.map((lotto) => {
+                                    const statistica = LottiStats.find((stas) => stas._id === lotto._id);
+                                    const lottoLavorata = lotto.lavorata ? lotto.lavorata : 0;
+                                    
+                                    const contoterzitrue = statistica?.length > 0 ? true : false
+                                    console.log(statistica)
+
+                                    const commonProps = {
+                                        key: lotto._id,
+                                        lottoid: lotto._id,
+                                        navigazione: `./show/${lotto._id}`,
+                                        name: lotto.name,
+                                        data: lotto.data,
+                                        cashmere: lotto.cashmere,
+                                        vendita: false, // 'vendita' is always false here as we're in the else block
+                                        lavorata: lottoLavorata,
+                                        colori: Colori // Ensure Colori is defined and correct
+                                    };
+
+                                    // Render DdtContoTerziCard for each lotto
+                                    return (
+                                        <DdtContoTerziCard
+                                            {...commonProps}
+                                            stats={statistica}
+                                            contoterzi={true}
+                                        />
+                                    );
+                                })
+                            )}
                         </Box>
 
                     

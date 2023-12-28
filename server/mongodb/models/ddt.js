@@ -56,6 +56,44 @@ const DdtSchema = new mongoose.Schema({
         next();
     });
 
+    DdtSchema.statics.calculateTotalKgVendita = async function (startDate, endDate) {
+        const pipeline = [
+          // Step 1: Optionally filter documents by date range and causale if startDate and endDate are provided
+          {
+            $match: {
+              ...(startDate && endDate ? { data: { $gte: new Date(startDate), $lte: new Date(endDate) } } : {}),
+              causale: 'vendita'
+            }
+          },
+          // Step 2: Unwind the 'beni' array to process each item
+          { $unwind: "$beni" },
+          
+          // Step 3: Group documents and sum the kg
+          {
+            $group: {
+              _id: {
+                year: { $year: "$datauscita" },
+                month: { $month: "$datauscita" }
+              },
+              totalKgVendita: { $sum: "$beni.kg" }
+            }
+          },
+      
+          // Step 4: Optionally format the output
+          {
+            $project: {
+              _id: 0,
+              year: "$_id.year",
+              month: "$_id.month",
+              totalKgVendita: 1
+            }
+          }
+        ];
+      
+        const result = await this.aggregate(pipeline).exec();
+        return result;
+      }
+
 const ddtModel = mongoose.model("Ddt", DdtSchema);
 
 export default ddtModel

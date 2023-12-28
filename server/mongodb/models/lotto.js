@@ -968,69 +968,68 @@ LottoSchema.statics.getTotals = async function () {
       // Fase di group se necessario
       {
         $group: {
-          _id: "$_id",
-          cashmere: { $first: "$cashmere" },
-          //dalavoraretemp: { $first: "$dalavoraretemp" },
-          dalavorare: { $first: "$dalavorare" },
-          venduti: { $first: "$venduti" },
-          //lavoratatemp: { $first: "$lavoratatemp" },
-          lavorata: { $first: "$lavorata" },
-          //lavorataGroupedByColor: { $first: "$lavorataGroupedByColor" },
-          unchecked: { $first: "$unchecked" }
-          // Aggiungi altri campi che vuoi includere nel gruppo
-        }
-      },
-    
-      {
-        $group: {
           _id: null,
           totalCashmere: {
             $sum: {
               $reduce: {
                 input: "$cashmere",
                 initialValue: 0,
-                in: {
-                  $add: ["$$value", "$$this.kg"],
-                },
-              },
-            },
+                in: { $add: ["$$value", "$$this.kg"] }
+              }
+            }
           },
           totalDaLavorare: {
             $sum: {
               $reduce: {
                 input: "$dalavorare",
                 initialValue: 0,
-                in: {
-                  $add: ["$$value", "$$this.kg"],
-                },
-              },
-            },
+                in: { $add: ["$$value", "$$this.kg"] }
+              }
+            }
           },
           totalLavorata: {
             $sum: {
               $reduce: {
                 input: "$lavorata",
                 initialValue: 0,
-                in: {
-                  $add: ["$$value", "$$this.kg"],
-                },
-              },
-            },
+                in: { $add: ["$$value", "$$this.kg"] }
+              }
+            }
           },
           totalVenduta: {
             $sum: {
               $reduce: {
-                input: "$venduti",
+                input: {
+                  $filter: {
+                    input: "$ddtData",
+                    as: "ddt",
+                    cond: { $eq: ["$$ddt.causale", "vendita"] }
+                  }
+                },
                 initialValue: 0,
                 in: {
-                  $add: ["$$value", "$$this.kg"],
-                },
-              },
-            },
+                  $add: [
+                    "$$value",
+                    { $sum: "$$this.beni.kg" } // Sum the kg for each DDT where causale is "vendita"
+                  ]
+                }
+              }
+            }
           },
-        },
+        }
+      },
+      {
+        $addFields: {
+          lavorata: {
+            $subtract: [
+              "$totalLavorata",
+              "$totalVenduta" // Subtract totalVenduta from totalLavorata
+            ]
+          }
+        }
       }
-    ]
+    ];
+    
   
     const risultato = await this.aggregate(pipeline).exec();
   
@@ -1163,6 +1162,45 @@ LottoSchema.statics.getStatss = async function (id) {
 
   return risultato; 
 }
+
+LottoSchema.statics.calculateTotalKg = async function (startDate, endDate) {
+  const pipeline = [
+    // Step 1: Optionally filter documents by date range if startDate and endDate are provided
+    ...(startDate && endDate ? [{
+      $match: {
+        "data": { $gte: new Date(startDate), $lte: new Date(endDate) }
+      }
+    }] : []),
+
+    // Step 2: Unwind the 'cashmere' array to process each item
+    { $unwind: "$cashmere" },
+
+    // Step 3: Group documents and sum the kg
+    {
+      $group: {
+        _id: {
+          year: startDate || endDate ? { $year: "$datauscita" } : null, // Apply year grouping only if a date is provided
+          month: startDate || endDate ? { $month: "$datauscita" } : null // Apply month grouping only if a date is provided
+        }, // Grouping at the root level, change if needed
+        totalKg: { $sum: "$cashmere.kg" }
+      }
+    },
+
+    // Step 4: Optionally format the output
+    {
+      $project: {
+        _id: 0,
+        year: "$_id.year",
+        month: "$_id.month",
+        totalKg: 1
+      }
+    }
+  ];
+
+  const result = await this.aggregate(pipeline).exec();
+  return result;
+}
+
 
 const lottoModel = mongoose.model("Lotto", LottoSchema);
 
