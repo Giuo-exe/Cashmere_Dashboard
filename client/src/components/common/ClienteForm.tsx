@@ -95,16 +95,28 @@ const ClienteForm = ({
                                     </FormControl>
                                     <FormControl fullWidth>
                                         <TextField
-                                            label="Telefono"
+                                            label="Città"
                                             fullWidth
                                             required
                                             id="outlined-basic"
                                             color="info"
                                             variant="outlined"
-                                            {...register("telefono", { required: true })}
+                                            {...register("citta", { required: true })}
                                         />
                                     </FormControl>
                                 </Stack>
+                                <FormControl fullWidth>
+                                    <TextField
+                                        label="Telefono"
+                                        type="tel"
+                                        fullWidth
+                                        required
+                                        id="outlined-basic"
+                                        color="info"
+                                        variant="outlined"
+                                        {...register("telefono", { required: true })}
+                                    />
+                                </FormControl>
                                 <FormControl fullWidth>
                                         <TextField
                                             label="Codice Fiscale"

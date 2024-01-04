@@ -8,7 +8,8 @@ import { useList } from "@refinedev/core";
 import { useCart } from "utils/CartContext";
 import { BeneProps, BeniGridProps } from "interfaces/grid";
 import { DataGrid, GridColDef, GridValueFormatterParams } from "@mui/x-data-grid";
-import columns from "components/grid/DdtShowGrid";
+import columns from "components/grid/DdtContoShowGrid";
+import columnsVendita from "components/grid/DdtVenditaShowGrid";
 import ClienteShowCard from "components/card/ClienteShowCard";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
@@ -291,7 +292,7 @@ const DdtCreate = () => {
                             <Box sx={{ height: 400, width: '100%' }}>
                                 <DataGrid
                                     rows={autoIncrementId(rows)}
-                                    columns={columns}
+                                    columns={type == "contoterzi" ? columns : columnsVendita}
                                     hideFooterPagination={true}
                                     sx={{
                                     boxShadow: 2,
@@ -377,6 +378,8 @@ const getCartRows = (cart: any) => {
 
         cart.forEach((index: BeneProps) => {
             const bene = index.lottoname + " - Cashmere " + index.colorename
+
+            console.log(index)
 
             rows.push({
                 bene: bene,

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import AddIcon from '@mui/icons-material/Add';
 import { useCart } from '../../utils/CartContext';
 import { getId } from 'pages/ddt/idgenerator';
+import PolarChart from 'components/charts/PolarAreaCharts'
 
 interface CashmereItem {
   colorename: string;
@@ -26,14 +27,22 @@ interface ColoreProps {
 const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata, stats, contoterzi, venditacheck, colori ,vendita, ids} : lottoCardProps) => {
     
     cashmere = contoterzi ? stats.cashmere : cashmere
-    console.log(stats.cashmere)
+    console.log(stats)
     
   
     // const initialRemainingQuantities: number[] = stats.length > 0 ? 
     // [calculateDifference(stats)] :  // If contoterzi is true
     // cashmere.map(cash => cash.kg);  //
+    const {remaining , totalDaLavorareKg} = calculateDifference(stats)
+    const initialRemainingQuantities = [remaining]
 
-    const initialRemainingQuantities = [calculateDifference(stats)]
+    const totKg: number = (remaining + totalDaLavorareKg)
+
+
+    const remainingPercentuale = (remaining * 100 / totKg ).toFixed(2) || 0
+    const daLavorarePercentuale = (totalDaLavorareKg * 100 / totKg ).toFixed(2) || 0
+
+
 
     console.log(initialRemainingQuantities)
 
@@ -120,10 +129,9 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
 
       setRemainingQuantities(remainingQuantitiesCopy);
       // setRemainingBalle(remainingBalleCopy);
-      console.log(remainingBalle)
     }, [cart, cashmere, lottoid]); // Aggiungi lottoid come dipendenza
       
-    console.log(colori)
+
 
 
     useEffect(() => {
@@ -136,7 +144,7 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
       <Card 
           sx={{
           width: "45%",
-          height: "400px",
+          height: "auto",
           borderRadius: "12px",
           transition: "transform 0.2s",
           "&:hover": {
@@ -153,86 +161,112 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
               </Typography>
 
               <Box>
-              {cashmere.map((cash, index) => {
-                  let hex = cash.hex == null ? "ffffff": cash.hex 
-                  return(
-                  <Stack alignItems="center" direction="row" gap={3}>
+                {cashmere.map((cash, index) => {
+                    let hex = cash.hex == null ? "ffffff": cash.hex 
+                    return(
+                    <Stack alignItems="center" direction="row" gap={3}>
 
-                          <Grid container alignItems="center" justifyContent="flex-start"> {/* Contenitore della griglia per allineamento */}
-                              <Grid item>
-                                  <Stack alignItems="center" direction="row" gap={1} >
-                                      <Typography gutterBottom variant='body1' fontWeight="bold">Cashmere {remainingQuantities[index]} Kg </Typography>
-                                      <Typography gutterBottom variant='body2' fontWeight="bold">Balle {remainingBalle[index]} </Typography>
-                                  </Stack>
-                              </Grid>
-                          
-                          </Grid>
-                  </Stack>
+                            <Grid container alignItems="center" justifyContent="flex-start"> {/* Contenitore della griglia per allineamento */}
+                                <Grid item>
+                                    <Stack alignItems="center" direction="row" gap={1} >
+                                        <Typography gutterBottom variant='body1' fontWeight="bold">Cashmere {remainingQuantities[index]} Kg </Typography>
+                                        <Typography gutterBottom variant='body2' fontWeight="bold">Balle {remainingBalle[index]} </Typography>
+                                    </Stack>
+                                </Grid>
+                            
+                            </Grid>
+                    </Stack>
 
                   
                   
               )})}
 
-              <Grid container alignItems="center" justifyContent="flex-end" spacing={1}> {/* Contenitore della griglia per allineamento */}
-                <Grid item>
-                  <Autocomplete
-                        options={colori}
-                        getOptionLabel={(option) => `${option.name} ${option.codice}`}
-                        onChange={handleColorChange}
-                        renderOption={(props, option) => (
-                            <li {...props}>
-                                <Card
-                                    sx={{
-                                        backgroundColor: option.hex,
-                                        maxHeight: "20px",
-                                        maxWidth: "20px",
-                                        minHeight: "20px",
-                                        minWidth: "20px",
-                                        marginRight: "10px"
-                                    }}
-                                />
-                                <span style={{ color: 'black' }}>{`${option.name} `} </span>
-                                <span style={{ color: 'darkgray' }}> {`   ${option.codice}`}</span>
-                            </li>
-                        )}
-                        renderInput={(params) => (
-                            <TextField {...params} label="Select Color" variant="standard" />
-                        )}
-                        style={{ width: 200 }}
-                  />
-                </Grid>
-                <Grid item>
+              <PolarChart
+                colors={["#aaa444","#dea232"]}
+                labels={["diobon","canis"]}
+                series={[remainingPercentuale as number, daLavorarePercentuale as number]}
+                title={"Kg Rimanenti"}
+                type={"Ninih"}
+                value={remaining}
+              />
+
+           
+              <Grid container alignItems="center" justifyContent="flex-end" spacing={2} sx={{ padding: "16px" }}> 
+                  {/* Seleziona Colore */}
+                  <Grid item>
+                    <Autocomplete
+                      options={colori}
+                      getOptionLabel={(option) => `${option.name} ${option.codice}`}
+                      onChange={handleColorChange}
+                      style={{ width: 200 }}
+                      renderOption={(props, option) => (
+                          <li {...props}>
+                              <Card
+                                  sx={{
+                                      backgroundColor: option.hex,
+                                      height: "20px",
+                                      width: "20px",
+                                      marginRight: "10px",
+                                      borderRadius: "50%",  // Cerchio
+                                  }}
+                              />
+                              <span style={{ color: 'black' }}>{`${option.name} `} </span>
+                              <span style={{ color: 'darkgray' }}> {`   ${option.codice}`}</span>
+                          </li>
+                      )}
+                      renderInput={(params) => (
+                          <TextField {...params} label="Seleziona Colore" variant="outlined" sx={{ width: "100%", backgroundColor: "#fff", borderRadius: "4px" }} />
+                      )}
+                    />
+                  </Grid>
+
+                  {/* Input per Kg */}
+                  <Grid item>
+                      <TextField
+                          sx={{
+                            width: "100px",
+                            "& .MuiInputBase-root": {
+                                backgroundColor: "#fff",
+                                borderRadius: "4px",
+                            }
+                          }}
+                          id={`kg-${0}`}
+                          inputProps={{
+                              min: 0,
+                              max: remainingQuantities[0],
+                              type: "number"
+                          }}
+                          label="Kg"
+                          variant="outlined"
+                          value={inputValues[0]} // Usa il valore corrispondente nell'array
+                          onChange={(event) => handleInputChange(event, 0)} // Passa l'indice
+                      />
+                  </Grid>
+
+                  <Grid item>
                     <TextField
-                        sx={{width:"100px"}}
-                        id={`kg-${0}`}
-                        inputProps={{
-                            min: 0,
-                            max: remainingQuantities[0],
-                            type: "number"
+                        sx={{ 
+                            width: "60px",
+                            "& .MuiInputBase-root": {
+                                backgroundColor: "#fff",
+                                borderRadius: "4px",
+                            }
                         }}
-                        label="Kg"
-                        variant="standard"
-                        value={inputValues[0]} // Usa il valore corrispondente nell'array
-                        onChange={(event) => handleInputChange(event, 0)} // Passa l'indice
-                    />
+                        id={`balle-${0}`}
+                        inputProps={{ min: 1, type: "number", max: remainingBalle[0]}}
+                        label="Balle"
+                        variant="outlined"
+                        value={balleInputValues[0]}
+                        onChange={(event) => handleBalleInputChange(event, 0)}
+                      />
+                  </Grid>
+
+                  <Grid item>
+                      <IconButton color="primary" sx={{ '&:hover': { backgroundColor: "#f0f0f0" }}} onClick={() => handleAddToCart(0)}>
+                        <AddIcon />
+                      </IconButton>
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <TextField
-                      sx={{ width: "60px" }}
-                      id={`balle-${0}`}
-                      inputProps={{ min: 1, type: "number", max: remainingBalle[0]}}
-                      label="Balle"
-                      variant="standard"
-                      value={balleInputValues[0]}
-                      onChange={(event) => handleBalleInputChange(event, 0)}
-                    />
-                </Grid>
-                <Grid item>
-                    <IconButton color="primary" onClick={() => handleAddToCart(0)}>
-                      <AddIcon />
-                    </IconButton>
-                </Grid>
-            </Grid>
 
               </Box>
           </CardContent>
@@ -242,19 +276,21 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
 
 function calculateDifference(stats : any) {
   // Safely access stats.cashmere.kg, defaulting to 0 if not available
-  const cashmereKg = stats.cashmere?.kg || 0;
+  const cashmereKg = stats.cashmere[0]?.kg || 0;
 
   // Calculate the total kg in stats.daLavorare, defaulting to 0 if the array is empty
-  const totalDaLavorareKg = stats.daLavorare?.reduce((total : any, item : any) => {
+  const totalDaLavorareKg : number = stats.dalavorare?.reduce((total : any, item : any) => {
       // Ensure each item's kg is a number, defaulting to 0 if not
+      console.log(item)
       const kg = item.kg || 0;
       return total + kg;
   }, 0) || 0;
 
   console.log(cashmereKg,totalDaLavorareKg)
+  const remaining = cashmereKg - totalDaLavorareKg
 
   // Return the difference
-  return cashmereKg - totalDaLavorareKg;
+  return {remaining, totalDaLavorareKg};
 }
 
 export default DdtContoTerziCard

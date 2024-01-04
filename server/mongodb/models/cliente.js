@@ -9,6 +9,7 @@ const ClienteSchema = new mongoose.Schema({
   indirizzo: { type: String },
   piva: { type: String , required: false},
   rea: { type: String },
+  citta: { type: String },
   cap: { type: Number },
   cf: { type: String },
   contoterzi: { type: Boolean, default: false },

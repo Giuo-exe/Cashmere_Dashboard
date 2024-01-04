@@ -83,14 +83,15 @@ const FatturaShow : React.FC<IResourceComponentsProps> = () => {
     useEffect(() => {
       // Declare newRows inside the useEffect hook
       let newRows : any = [];
+  // colore
   
       if (Fattura?.allDdt) {
           Fattura.allDdt.forEach((ddt: any) => {
+            console.log(Fattura)
               ddt.beni.forEach((bene: any) => {
                   const colore = bene?.colore?.name || 'N/A';
                   const codice = bene?.colore?.codice || 'N/A';
-                  const lotto = bene?.lotto?.name || 'N/A';
-                  const descrizione = `Maglieria di Cashmere Colore ${colore} ${lotto}/${codice}`;
+                  const descrizione = `Maglieria di Cashmere Colore ${colore}/${codice}`;
                   const matchingKgEntry = Fattura?.idKg.find((kgEntry: any) => kgEntry.id === bene._id);
                   const prezzo = matchingKgEntry ? matchingKgEntry.kg : 0;
                   const importo = bene?.kg * prezzo;

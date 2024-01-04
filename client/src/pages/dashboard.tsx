@@ -97,6 +97,7 @@ const Dashboard = () => {
             return null; // Return null or appropriate error handling
         }
     };
+
     useEffect(() => {
         // Call GetTotals and update the state with the fetched data
         const fetchTotals = async () => {
@@ -117,9 +118,12 @@ const Dashboard = () => {
         }
 
         const paymentData = pagamentiAnno.map(p => ({
-            month: p.month,
+            month: p.date?.month,
+            year:p.date?.year,
             totalPayments: p.totalPayments
         }));
+
+        console.log(paymentData)
         setDatiPagamenti(paymentData);
     }, [allTotals,pagamentiAnno]);
 
@@ -131,26 +135,36 @@ const Dashboard = () => {
 
     console.log(dataChart)
 
-    const pagamentiSeries = [0,0,0,0,0,0,0,0,0,0,0,0]
-    // Calcoli basati sui dati ottenuti
-    // let totaleKg = (totals?.totalCashmere || 0) + 
-    //            (totals?.totalDaLavorare || 0) + 
-    //            (totals?.totalLavorata || 0) + 
-    //            (totals?.totalVenduta || 0);
+    const pagamentiSeries = [0,0,0,0,0,0,0,0,0,0,0,0];
 
 
-    if(datiPagamenti.length > 0 ){
-        for(const pagamento of datiPagamenti){
-            pagamentiSeries[pagamento.month - 1] =  pagamento.totalPayments;
-        }
-    }
+// Supponi che 'datiPagamenti' sia ordinato per data, quindi il primo elemento è il mese più antico.
+// Trova il primo mese nei dati dei pagamenti.
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1; // +1 perché getMonth() restituisce 0-11
+
+    datiPagamenti.forEach(pagamento => {
+        // Calcola l'offset in base al mese corrente
+        let offset = pagamento.month - currentMonth - 1;
+        
+        // Calcola l'indice corretto in base all'offset
+        let index = (12 + offset) % 12;
+    
+        // Assegna il pagamento all'indice corretto
+        pagamentiSeries[index] = pagamento.totalPayments;
+    });
+
+
+        // Stampa per controllare i risultati
+        console.log(pagamentiSeries);
 
 
     let title = "prova";
 
     const areChartsReady = dataChart && allTotals;
+    console.log(dataChart)
 
-     let Lavoratacolori = ["#ff5457","#ffbfd2"];
+    let Lavoratacolori = ["#ff5457","#ffbfd2"];
     
 
     const cashTot = pagamentiSeries.reduce((acc, curr) => acc + curr, 0)
@@ -273,10 +287,10 @@ function getChartData(totals : any, totaleKg : number) {
     const Lavoratacolori = ["#ff5457","#ffbfd2"];
     const Vendutacolori = ["#FCB41C","#FCF4C4"];
 
-    const totNL = totals?.totalCashmere.totalKg || 0 - totals?.totalDaLavorare.totalKg
-    const totIL = totals?.totalDaLavorare.totalKg - totals?.totalLavorata.totalKg
-    const totL = totals?.totalLavorata.totalKg - totals?.totalVenduta.totalKg || 0
-    const totV = totals?.totalVenduta.totalKg
+    const totNL = totals?.totalCashmere?.totalKg || 0 - totals?.totalDaLavorare?.totalKg || 0
+    const totIL = totals?.totalDaLavorare?.totalKg || 0 - totals?.totalLavorata?.totalKg || 0
+    const totL = totals?.totalLavorata?.totalKg || 0 - totals?.totalVenduta?.totalKg || 0
+    const totV = totals?.totalVenduta?.totalKg || 0
 
     const tot = totNL + totIL + totL + totV
 
@@ -369,6 +383,7 @@ const GetYearPayments = () => {
     const { data } = useList({ resource: "pagamenti/year" });
 
     const allYearPayments = data?.data ?? [];
+    console.log(allYearPayments)
 
     return allYearPayments
 }

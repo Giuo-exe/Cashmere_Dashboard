@@ -15,7 +15,9 @@ const getAllFattureSelected = async (req,res) => {
         name_like = "",
     } = req.query;
 
-    const query = {};
+    const query = {
+        pagato: { $ne: true }  // Aggiungi questa linea per escludere documenti dove pagato è true
+    };
     
     if (data !== "") {
         query.data = data;

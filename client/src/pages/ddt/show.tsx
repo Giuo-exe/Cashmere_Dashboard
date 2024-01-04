@@ -4,7 +4,7 @@ import { useDelete, useShow } from "@refinedev/core";
 import ClienteShowCard from "components/card/ClienteShowCard";
 import DdtShowCard from "components/card/DdtShowCard";
 import CustomButton from "components/common/CustomBotton";
-import columns from "components/grid/DdtShowGrid";
+import columns from "components/grid/DdtContoShowGrid";
 import LottoCardShow from "components/show/lottoCardShow";
 import { BeneProps, BeniGridProps } from "interfaces/grid";
 import { useNavigate, useParams } from "react-router-dom";

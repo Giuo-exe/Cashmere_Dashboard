@@ -3,7 +3,7 @@ import CustomButton from "components/common/CustomBotton"
 import { PagamentiFattureProps } from "interfaces/fattura"
 import { useNavigate } from "react-router-dom";
 import { Add } from "@mui/icons-material";
-import PieChart from "components/charts/PieCharts";
+import PieChartPagamenti from "components/charts/PieChartPagamenti";
 
 
 const banner = {
@@ -65,7 +65,7 @@ const PagamentiFattura = ({
                         Cliente: {cliente}
                     </Typography>
 
-                    <PieChart
+                    <PieChartPagamenti
                         title="Saldo"
                         value={totale as number}
                         series={series()}

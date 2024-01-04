@@ -72,7 +72,7 @@ const getClienteInfoByName = async (req,res) => {
 
 const createCliente = async (req,res) => {
     try{
-        const {name, email, telefono ,indirizzo, cap, piva, rea, cf, contoterzi, allFatture} = req.body;
+        const {name, email, telefono ,indirizzo, citta, cap, piva, rea, cf, contoterzi, allFatture} = req.body;
 
         const clienteExist = await Cliente.findOne({ name });
 
@@ -85,6 +85,7 @@ const createCliente = async (req,res) => {
             telefono,
             cap,
             cf,
+            citta,
             rea,
             piva,
             contoterzi,
@@ -122,7 +123,7 @@ const deleteCliente = async (req,res) => {
 const updateCliente = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, telefono, indirizzo, piva, rea, cap, cf } =
+        const { name, email, telefono, indirizzo, piva, rea, citta, cap, cf } =
             req.body;
 
         // Aggiorna il cliente con i nuovi valori
@@ -134,6 +135,7 @@ const updateCliente = async (req, res) => {
                 telefono, 
                 indirizzo, 
                 piva, 
+                citta,
                 rea, 
                 cap, 
                 cf

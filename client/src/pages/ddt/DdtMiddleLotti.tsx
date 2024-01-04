@@ -41,8 +41,6 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
     const LottiStats = GetStats();
     const Colori = GetColours();
     const Giacenza = GetGiacenza();
-
-    console.log(LottiStats)
     
     const [id, setId] = useState(0);
     const [lottiHeight, setLottiHeight] = useState(window.innerHeight);
@@ -162,7 +160,6 @@ const DdtMiddleLotti = ({ type }: DdtMiddleLottiProps) => {
                                     const lottoLavorata = lotto.lavorata ? lotto.lavorata : 0;
                                     
                                     const contoterzitrue = statistica?.length > 0 ? true : false
-                                    console.log(statistica)
 
                                     const commonProps = {
                                         key: lotto._id,

@@ -4,7 +4,7 @@ import ClienteShowCard from './ClienteShowCard';
 import { DataGrid } from '@mui/x-data-grid';
 import { DdtProps } from 'interfaces/ddt';
 import { useDelete, useShow } from "@refinedev/core";
-import columns from 'components/grid/DdtShowGrid';
+import columns from 'components/grid/DdtContoShowGrid';
 import { BeneProps, BeniGridProps } from 'interfaces/grid';
 import CustomButton from 'components/common/CustomBotton';
 import { useNavigate, useParams } from "react-router-dom";
@@ -47,7 +47,7 @@ const DdtShowCard = ({causale,id,data,destinatario,destinazione,beni,tara,_id} :
         kgtot += bene.kg.valueOf();
     })
 
-    const rows = getRows(beni)
+    const rows = getRows(beni,causale as string)
 
   return (
     <Box alignContent="center" justifyContent="center" display="flex" >
@@ -218,7 +218,7 @@ const DdtShowCard = ({causale,id,data,destinatario,destinazione,beni,tara,_id} :
   )
 }
 
-function getRows (beni: any)  {
+function getRows (beni: any, causale : string)  {
 
     const rows: BeniGridProps[] = []; // Initialize an empty array to hold the transformed data
 
@@ -227,8 +227,11 @@ function getRows (beni: any)  {
         beni.forEach((index) => {
 
         const hex = index.colore.hex != null ? index.colore.hex : ""
-        const name = index.lotto.name
-        const bene = name + "/"+ index?.colore?.codice + " - Maglieria di cashmere " + index.colore.name;
+        const name = causale == "contoterzi" ? index.lotto.name : ""
+        const bene = causale == "contoterzi" ? 
+            name + "/"+ index?.colore?.codice + " - Cashmere sfilacciato " + index.colore.name 
+            :
+             " Maglieria di cashmere " + index.colore.name  + "/"+ index?.colore?.codice;
       
           rows.push({
             bene: bene,
