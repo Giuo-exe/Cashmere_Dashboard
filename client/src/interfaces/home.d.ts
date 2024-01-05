@@ -9,6 +9,18 @@ export interface ChartProps {
     cashmereItems?: any
 }
 
+export interface RadialProps {
+    title: string,
+    RemainingValue: number,
+    ContoterziValue: number,
+    series: Array<number>
+    colors: Array<string>
+    labels: Array<string>
+    type: string
+    context?: string
+    cashmereItems?: any
+}
+
 export interface DonutChartProps {
     title: string,
     value: number,

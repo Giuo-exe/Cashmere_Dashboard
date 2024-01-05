@@ -33,26 +33,53 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
     // const initialRemainingQuantities: number[] = stats.length > 0 ? 
     // [calculateDifference(stats)] :  // If contoterzi is true
     // cashmere.map(cash => cash.kg);  //
-    const {remaining , totalDaLavorareKg} = calculateDifference(stats)
-    const initialRemainingQuantities = [remaining]
 
+    const {addToCart, removeFromCart, cart} = useCart();
+
+    const [remaining, setRemaining] = useState(calculateDifference(stats).remaining);
+    const [totalDaLavorareKg, setTotalDaLavorareKg] = useState(calculateDifference(stats).totalDaLavorareKg)
     const totKg: number = (remaining + totalDaLavorareKg)
 
 
     const remainingPercentuale = (remaining * 100 / totKg ).toFixed(2) || 0
     const daLavorarePercentuale = (totalDaLavorareKg * 100 / totKg ).toFixed(2) || 0
 
-
-
-    console.log(initialRemainingQuantities)
-
-    const {addToCart, removeFromCart, cart} = useCart();
-
     const [inputValues, setInputValues] =  useState(cashmere.map(() => ''));
-    const [remainingQuantities, setRemainingQuantities] =  useState(initialRemainingQuantities); // Stato per la quantità rimasta
+    const [remainingQuantities, setRemainingQuantities] =  useState([remaining]); // Stato per la quantità rimasta
     const [balleInputValues, setBalleInputValues] = useState(cashmere.map(() => ''));
     const [remainingBalle, setRemainingBalle] = useState(cashmere.map((cash) => cash.n));
     const [selectedColor, setSelectedColor] = useState<ColoreProps>();
+
+
+
+
+    useEffect(() => {
+      // Calcola il totale dei Kg già nel carrello per questo lotto specifico
+      const totalKgInCart = cart.reduce((sum, cartItem) => {
+        if (cartItem.lotto === lottoid) {
+          return sum + cartItem.kg; // Aggiunge il peso del cartItem al totale se appartiene al lotto corretto
+        }
+        return sum; // Se non appartiene al lotto, ritorna semplicemente il totale corrente
+      }, 0);
+    
+      // Calcola le nuove quantità rimanenti sottraendo il totale nel carrello dal totale iniziale
+      const newRemaining = calculateDifference(stats).remaining - totalKgInCart;
+    
+      // Aggiorna lo stato con le nuove quantità rimanenti
+      setRemaining(newRemaining);
+    
+      // Qui potresti dover aggiornare anche il totalDaLavorareKg, 
+      // dipende da come vuoi trattare questa logica. Se il valore totale da lavorare cambia 
+      // in base agli elementi nel carrello, dovresti aggiornarlo qui.
+    
+      // Infine, calcola e aggiorna le percentuali per il grafico basate sui nuovi valori
+      const totKg = newRemaining + calculateDifference(stats).totalDaLavorareKg;
+      const remainingPercentuale = (newRemaining * 100 / totKg).toFixed(2);
+      const daLavorarePercentuale = (calculateDifference(stats).totalDaLavorareKg * 100 / totKg).toFixed(2);
+    
+      // Assicurati che le percentuali vengano passate correttamente al componente del grafico
+    
+    }, [cart, stats, lottoid]);
 
     const handleColorChange = (event : any, value : any) => {
         setSelectedColor(value);
@@ -97,7 +124,7 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
         addToCart(itemToAddToCart);
     
         // Update remaining quantity and reset input fields
-        setRemainingQuantities(prevQuantities => {
+        setRemainingQuantities((prevQuantities : any) => {
           const newQuantities = [...prevQuantities];
           const updatedQuantity = parseFloat((newQuantities[index] - finalKgToAdd).toFixed(2));
           newQuantities[index] = updatedQuantity;
@@ -183,15 +210,17 @@ const DdtContoTerziCard = ({navigazione, name, lottoid, data, cashmere, lavorata
 
               <PolarChart
                 colors={["#aaa444","#dea232"]}
-                labels={["diobon","canis"]}
+                labels={["In Magazzino","Mandata al Contoterzi"]}
                 series={[remainingPercentuale as number, daLavorarePercentuale as number]}
                 title={"Kg Rimanenti"}
                 type={"Ninih"}
-                value={remaining}
+                RemainingValue={remaining}
+                ContoterziValue={totalDaLavorareKg}
+
               />
 
            
-              <Grid container alignItems="center" justifyContent="flex-end" spacing={2} sx={{ padding: "16px" }}> 
+              <Grid container alignItems="center" justifyContent="center" spacing={2} sx={{ padding: "16px" }}> 
                   {/* Seleziona Colore */}
                   <Grid item>
                     <Autocomplete
