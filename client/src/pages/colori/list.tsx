@@ -193,7 +193,7 @@ const ColoreList : React.FC<IResourceComponentsProps> = () => {
             </Modal>
             
 
-            <Paper elevation={2}
+            <Paper variant="outlined"
                 sx={{
                     padding:"10px",
                     marginTop: "20px",
@@ -202,12 +202,11 @@ const ColoreList : React.FC<IResourceComponentsProps> = () => {
                     gap: "20px",
                     backgroundColor: (theme) =>
                     theme.palette.mode === 'dark' ? '#17161B' : '#fff',
-                    minHeight:"800px"
                 }}
             >
-                <Grid container>
+                <Grid container spacing={1}>
                     {allColori.map((colore) => (
-                        <Grid item key={colore._id} xs={4} sm={4} md={3} lg={2}>
+                        <Grid item key={colore._id} xs={4} sm={4} md={3} lg={2} sx={{ marginTop: 1, marginBottom: 1 }}>
                             <ColoreCard
                                 hex={colore.hex}
                                 name={colore.name}
