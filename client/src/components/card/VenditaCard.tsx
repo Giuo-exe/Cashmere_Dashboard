@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Paper, Typography, Button, Box, Grid, Card, Stack, TextField, Autocomplete } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useCart } from 'utils/CartContext';
 import AddIcon from '@mui/icons-material/Add';
+import CustomButton from 'components/common/CustomBotton';
 
 // Define a modern color palette
 const colors = {
@@ -66,7 +67,7 @@ const VenditaCardApp = ({ item, lots }: { item: any; lots: any[] }) => {
       const inputValueKg = parseFloat(kgInput);
       const inputValueBales = parseInt(balesInput, 10);
   
-      if (!isNaN(inputValueKg) && inputValueKg > 0 && inputValueKg <= remainingKg) {
+      if (!isNaN(inputValueKg) && inputValueKg > 0 && inputValueKg <= remainingKg && inputValueBales > 0) {
         const newItem = {
           idcart: Date.now(),
           lottoname: selectedLot,
@@ -95,7 +96,7 @@ const VenditaCardApp = ({ item, lots }: { item: any; lots: any[] }) => {
       let totalBales = item?.n || 0;
   
       cart.forEach((cartItem) => {
-        if (cartItem.lotto === item?.lotto && cartItem.colore === item?.colore) {
+        if (cartItem.lotto === item?.lotto && cartItem.colore === item?.colorInfo._id) {
           totalKg -= cartItem.kg;
           totalBales -= cartItem.n;
         }
@@ -117,7 +118,7 @@ const VenditaCardApp = ({ item, lots }: { item: any; lots: any[] }) => {
           {remainingKg?.toFixed(2)} Kg
         </OutlinedTypography>
       </Box>
-      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2, backgroundColor: colors.inputBg }}>
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 3, backgroundColor: colors.inputBg }}>
         <StyledTextField
           label="Kg"
           variant="outlined"
@@ -126,13 +127,13 @@ const VenditaCardApp = ({ item, lots }: { item: any; lots: any[] }) => {
           onChange={(e) => setKgInput(e.target.value)}
         />
         <StyledTextField
-          label="Bales"
+          label="Balle"
           variant="outlined"
           size="small"
           value={balesInput}
           onChange={(e) => setBalesInput(e.target.value)}
         />
-         <Autocomplete
+         {/* <Autocomplete
           options={lottiName} // The array of lot options
         //   getOptionLabel={(option) => `${option.name} - ${option.quantity} Kg`} // How options are rendered in the menu
           style={{ width: 300 }} // Adjust the width as needed
@@ -142,7 +143,7 @@ const VenditaCardApp = ({ item, lots }: { item: any; lots: any[] }) => {
             setSelectedLot(newValue);
             // Additional logic to handle selection change
           }}
-        />
+        /> */}
         <Button variant="contained" style={{ backgroundColor: colors.primary, color: '#fff' }}>
           Submit
         </Button>
@@ -156,15 +157,92 @@ const VenditaCardApp = ({ item, lots }: { item: any; lots: any[] }) => {
 
 const VenditaCard = ({ stats, lots }: { stats: any[],lots: any[] }) => {
   const safeStats = Array.isArray(stats) ? stats : [];
-  
+
+  console.log(safeStats)
+
+  // Stato per l'ordinamento
+  const [orderField, setOrderField] = useState('asc');
+
+  // Stato per la ricerca
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Ordina e filtra i dati
+  const filteredAndSortedData = useMemo(() => {
+      let result = [...safeStats];
+
+      // Convert searchTerm to lowercase for case-insensitive comparison
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+      // Apply the filter
+      if (searchTerm) {
+          result = result.filter(item =>
+            item.codice.toLowerCase().includes(lowerCaseSearchTerm) || 
+            (item.colorInfo && item.colorInfo.name.toLowerCase().includes(lowerCaseSearchTerm))
+        );// Add more fields to filter as needed
+      }
+
+      // Apply sorting for a selected field
+      if (orderField) {
+          result.sort((a, b) => {
+              const fieldA = (a.codice || "").toUpperCase() // Replace with the actual field you want to sort
+              const fieldB = (b.codice || "").toUpperCase() // Replace with the actual field you want to sort
+
+              if (fieldA < fieldB) {
+                  return orderField === 'asc' ? -1 : 1;
+              }
+              if (fieldA > fieldB) {
+                  return orderField === 'asc' ? 1 : -1;
+              }
+              return 0;
+          });
+      }
+
+      return result;
+  }, [safeStats, searchTerm, orderField]);
+
+  const toggleSort = () => {
+      setOrderField(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+  };
+
+  const handleSearchChange = (e : any) => {
+      setSearchTerm(e.target.value);
+  };
+
   return (
-    <Grid container spacing={2} sx={{ maxWidth: '100%' }}>
-      {safeStats?.map((item, index) => (
-        <Grid item xs={12} sm={6} md={4} key={index}>
-          <VenditaCardApp item={item} lots={lots} />
-        </Grid>
-      ))}
-    </Grid>
+      <Box sx={{width: "100%"}}>
+
+            <Box width="100%" mt="20px" sx={{ display: "flex", flexWrap: "wrap", gap: 2, marginBottom:3}}>
+
+              <Box
+                  display="contents"
+                  justifyContent="flex-end"
+                  flexWrap="wrap-reverse"
+                  mb={{ xs: "15px", sm: 0, marginLeft:1 }}>
+              <TextField
+                  variant="outlined"
+                  color="info"
+                  placeholder="Cerca..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+              />
+              <CustomButton
+                  title={`Ordina per codice ${orderField === "asc" ? "↑" : "↓"}`}
+                  handleClick={toggleSort}
+                  backgroundColor="#475be8"
+                  color="#fcfcfc"/>
+              {/* Render your filtered and sorted data */}
+            </Box>
+
+          </Box>
+
+          <Grid container spacing={2} sx={{ maxWidth: '100%' }}>
+              {filteredAndSortedData.map((item, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={index}>
+                      <VenditaCardApp item={item} lots={lots} />
+                  </Grid>
+              ))}
+          </Grid>
+      </Box>
   );
 };
 
