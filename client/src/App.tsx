@@ -309,7 +309,12 @@ function App() {
               <Routes>
                 <Route
                   element={
-                    <Authenticated fallback={<CatchAllNavigate to="/login" />}>
+                    <Authenticated
+                      v3LegacyAuthProviderCompatible={true} // or false, depending on your needs
+                      key={"unique-key"} // replace with a relevant key if necessary
+                      fallback={<CatchAllNavigate to="/login" />}
+                    >
+
                       <ThemedLayoutV2 Title={() => <Title collapsed={false}/>} Header={() => <Header isSticky={true} />}>
                         <Outlet />
                       </ThemedLayoutV2>
@@ -383,7 +388,10 @@ function App() {
                 </Route>
                 <Route
                   element={
-                    <Authenticated fallback={<Outlet />}>
+                    <Authenticated 
+                      v3LegacyAuthProviderCompatible={true} // or false, depending on your needs
+                      key={"unique-key"}
+                      fallback={<Outlet />}>
                       <NavigateToResource />
                     </Authenticated>
                   }
