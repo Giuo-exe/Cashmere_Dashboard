@@ -24,18 +24,12 @@ interface ChartProps {
   context?: string;
 }
 
-const TotalRevenueSeries = (labels: Array<string>, series: Array<number>, colors : Array<string>) => {
-  // Create a single series object with an array of data points
-  let result = {
-    name: "Total Revenue",
-    data: series.map((value, index) => ({
-      x: labels[index],
-      y: (value.toFixed(2))
-    }))
-  };
-
-  // Return an array containing just this one series object
-  return [result];
+const TotalRevenueSeries = (labels: Array<string>, series: Array<number>, colors: Array<string>) => {
+  return series.map((value, index) => ({
+    name: labels[index],
+    data: [{ x: labels[index], y: value.toFixed(2) }],
+    color: colors[index],
+  }));
 };
 
 const GiacenzaBarChart = ({ title, giacenza, type, context }: ChartProps) => {
@@ -47,6 +41,8 @@ const GiacenzaBarChart = ({ title, giacenza, type, context }: ChartProps) => {
 
   const labelSeries = TotalRevenueSeries(categories,series,colors)
 
+  console.log(labelSeries)
+
   const TotalRevenueOptions: ApexOptions = {
     chart: {
       type: 'bar',
@@ -56,7 +52,7 @@ const GiacenzaBarChart = ({ title, giacenza, type, context }: ChartProps) => {
     },
     colors,
     xaxis: {
-      categories,
+      categories : ["Giacenza"],
     },
     plotOptions: {
       bar: {

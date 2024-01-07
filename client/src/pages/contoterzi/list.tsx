@@ -381,7 +381,7 @@ const ContoTerziList = () => {
         <Box>
             <Box gap={3} mb={2} mt={3} display="flex" width="100%">
                 <Typography sx={{ float: 'left', margin: '15' }} variant="h3" fontSize={40} fontWeight={700} color="#11142d">
-                    {!allContoTerzi.length ? 'Non ci sono ContoTerzi' : 'ContoTerzi'}
+                    {!FilteredContoterzi.length ? "Non c'è merce al Conto Terzi" : 'ContoTerzi'}
                 </Typography>
 
                 <Box display="contents" justifyContent="flex-end" flexWrap="wrap-reverse" mb={{ xs: '15px', sm: 0 }}>

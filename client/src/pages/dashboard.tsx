@@ -215,7 +215,7 @@ const Dashboard = () => {
                             labels={dataChart?.InLavorazioneData?.labels || ["default label"]}
                             />
                         <DonutChart
-                            title="Merce Lavorata"
+                            title="Merce Pronta"
                             value = {allTotals?.totalLavorata.totalKg || 0}
                             type="Kg"
                             colors={dataChart?.LavorataData?.colori || ["#fffff","#ffffff"]}
