@@ -75,7 +75,7 @@ const DdtSchema = new mongoose.Schema({
                 year: { $year: "$datauscita" },
                 month: { $month: "$datauscita" }
               },
-              totalKgVendita: { $sum: "$beni.kg" }
+              totalKg: { $sum: "$beni.kg" }
             }
           },
       
@@ -85,7 +85,7 @@ const DdtSchema = new mongoose.Schema({
               _id: 0,
               year: "$_id.year",
               month: "$_id.month",
-              totalKgVendita: 1
+              totalKg: 1
             }
           }
         ];
