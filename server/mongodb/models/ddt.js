@@ -94,6 +94,104 @@ const DdtSchema = new mongoose.Schema({
         return result;
       }
 
+      DdtSchema.statics.VenditaEColori = async function (startDate, endDate) {
+        const pipeline = [
+          // Step 1: Filter by date and causale
+          {
+            $match: {
+              ...(startDate && endDate ? { data: { $gte: new Date(startDate), $lte: new Date(endDate) } } : {}),
+              causale: 'vendita'
+            }
+          },
+          // Step 2: Unwind the 'beni' array
+          { $unwind: "$beni" },
+          
+          // Step 3: Lookup to enrich 'beni' with color details
+          {
+            $lookup: {
+              from: "colores",       // The collection to join
+              localField: "beni.colore",  // Field from the input documents
+              foreignField: "_id", // Field from the documents of the "from" collection
+              as: "beni.colorDetails"    // Output array field added to 'beni'
+            }
+          },
+    
+          // Step 4: Unwind the result from the lookup to normalize
+          {
+            $unwind: "$beni.colorDetails"
+          },
+          
+          // Step 5: Group by DDT ID and summarize colors with enriched details
+          {
+            $group: {
+              _id: "$_id",
+              ddtRoot: { $first: "$$ROOT" }, // Keep the entire DDT document
+              colors: {
+                $push: { 
+                  color: "$beni.colorDetails", // Includes detailed information
+                  kg: "$beni.kg"
+                }
+              }
+            }
+          },
+          
+          // Step 4: Regroup to separate the color summarization
+          {
+            $group: {
+              _id: null,
+              ddts: { $push: "$ddtRoot" },
+              colorsSummary: { $push: "$colors" }
+            }
+          },
+          
+          // Step 5: Reduce the colors to a single list
+          {
+            $project: {
+              ddts: 1,
+              colors: {
+                $reduce: {
+                  input: "$colorsSummary",
+                  initialValue: [],
+                  in: { $concatArrays: ["$$value", "$$this"] }
+                }
+              }
+            }
+          },
+          
+          // Step 6: Unwind the colors for summarization
+          {
+            $unwind: "$colors"
+          },
+          
+          // Step 7: Group colors to summarize the total kilograms per color
+          {
+            $group: {
+              _id: "$colors.color",
+              ddts: { $first: "$ddts" }, // Preserve the ddts array
+              totalKg: { $sum: "$colors.kg" }
+            }
+          },
+          
+          // Step 8: Group everything back together
+          {
+            $group: {
+              _id: null,
+              ddts: { $first: "$ddts" },
+              colors: {
+                $push: {
+                  color: "$_id",
+                  totalKg: "$totalKg"
+                }
+              }
+            }
+          }
+        ]
+      
+        const result = await this.aggregate(pipeline).exec();
+        return result;
+    };
+    
+
 const ddtModel = mongoose.model("Ddt", DdtSchema);
 
 export default ddtModel

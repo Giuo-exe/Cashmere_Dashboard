@@ -267,6 +267,20 @@ const DdtTotalKgVendutaDate = async (req, res) => {
     }
 }
 
+const DdtVenditaEColori = async (req,res) => {
+    const {id} = req.params
+    const {start , finish} = req.query
+
+    try{
+        const result = await Ddt.VenditaEColori(start,finish)
+        
+        // Send the HTTP response with the result
+        res.status(200).json(result);
+    }catch(error){
+        res.status(500).json({ message: error.message })
+    }
+}
+
 
 export {
     getAllddt,
@@ -276,7 +290,8 @@ export {
     createDdt,
     getVenditaddt, 
     getAllDdteSelected,
-    DdtTotalKgVendutaDate
+    DdtTotalKgVendutaDate,
+    DdtVenditaEColori
 }
 
 

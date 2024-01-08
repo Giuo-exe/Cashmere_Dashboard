@@ -29,6 +29,7 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
+import SellIcon from '@mui/icons-material/Sell';
 
 
 
@@ -63,6 +64,7 @@ import { DdtList,DdtCreate,DdtPreCreate, DdtShow } from "pages/ddt";
 import { Title } from "./components/title";
 import { LavorataList } from "pages/lavorata";
 import { GiacenzaList } from "pages/giacenza";
+import { VendutaList } from "pages/vendita";
 
 
 const axiosInstance = axios.create();
@@ -245,6 +247,12 @@ function App() {
                   show: "/giacenza/show/:id",
                 },
                 { 
+                  name: "venduta",
+                  options: {label : 'Venduta'},
+                  icon: <SellIcon/>,
+                  list: "/venduta"
+                },
+                { 
                   name: "fatture",
                   options: {label : 'Fatture'},
                   icon: <ReceiptIcon/>,
@@ -352,8 +360,6 @@ function App() {
                     <Route path="precreate/:type" element={<DdtPreCreate/>} />
                     <Route path="create/:type" element={<DdtCreate/>} />
                     <Route path="show/:id" element={<DdtShow />} />
-                    
-
                   </Route>
                   
                   <Route path="/clienti">
@@ -370,6 +376,11 @@ function App() {
 
                   <Route path="/giacenza">
                     <Route index element={<GiacenzaList />} />
+                    <Route path="create"  />
+                  </Route>
+
+                  <Route path="/venduta">
+                    <Route index element={<VendutaList />} />
                     <Route path="create"  />
                   </Route>
 
